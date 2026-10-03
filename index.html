@@ -3,45 +3,38 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>SportCoins</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-*{
-  box-sizing:border-box;
-  margin:0;
-  padding:0;
+:root{
+  --bg:#080b18;
+  --panel:#11162a;
+  --panel2:#171d35;
+  --border:#293253;
+  --text:#f4f6ff;
+  --muted:#9ca6c7;
+  --primary:#7c5cff;
+  --primary2:#a78bfa;
+  --green:#35d07f;
+  --yellow:#ffd54a;
+  --red:#ff5d73;
+  --blue:#45a7ff;
 }
 
-:root{
-  --bg:#080b16;
-  --panel:#10162a;
-  --panel2:#151c34;
-  --border:#28345a;
-  --text:#f5f7ff;
-  --muted:#9ca8c7;
-  --blue:#5b8cff;
-  --purple:#8b5cf6;
-  --green:#35d07f;
-  --yellow:#ffd166;
-  --red:#ff5d73;
+*{
+  box-sizing:border-box;
 }
 
 body{
+  margin:0;
   font-family:Arial,Helvetica,sans-serif;
-  background:
-    radial-gradient(circle at top right,#1b2450 0,transparent 35%),
-    var(--bg);
+  background:linear-gradient(135deg,#070a16,#10162c);
   color:var(--text);
-  min-height:100vh;
 }
 
-button,
-input,
-select,
-textarea{
+button,input,select,textarea{
   font:inherit;
 }
 
@@ -49,66 +42,215 @@ button{
   cursor:pointer;
 }
 
-.app{
-  display:flex;
-  min-height:100vh;
+.hidden{
+  display:none!important;
 }
 
-/* SIDEBAR */
+/* LOADING */
 
-.sidebar{
-  width:235px;
-  background:#0b1020;
-  border-right:1px solid var(--border);
-  padding:18px 12px;
+#loadingScreen{
   position:fixed;
-  left:0;
-  top:0;
-  bottom:0;
-  z-index:1000;
+  inset:0;
+  background:#080b18;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+}
+
+.loadingBox{
+  text-align:center;
 }
 
 .logo{
-  font-size:22px;
+  font-size:38px;
   font-weight:900;
-  padding:10px 12px 20px;
+  color:var(--primary2);
+  margin-bottom:20px;
 }
 
-.logo span{
-  color:var(--yellow);
+.spinner{
+  width:42px;
+  height:42px;
+  border:4px solid #252c49;
+  border-top-color:var(--primary);
+  border-radius:50%;
+  animation:spin 1s linear infinite;
+  margin:auto;
 }
 
-.nav{
+@keyframes spin{
+  to{transform:rotate(360deg)}
+}
+
+/* AUTH */
+
+#authScreen{
+  min-height:100vh;
   display:flex;
-  flex-direction:column;
-  gap:6px;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
 }
 
-.nav button{
-  background:transparent;
-  color:#cbd5f5;
+.authCard{
+  width:min(430px,100%);
+  background:rgba(17,22,42,.96);
+  border:1px solid var(--border);
+  border-radius:24px;
+  padding:30px;
+  box-shadow:0 20px 70px rgba(0,0,0,.35);
+}
+
+.authLogo{
+  text-align:center;
+  font-size:34px;
+  font-weight:900;
+  color:var(--primary2);
+}
+
+.authSubtitle{
+  text-align:center;
+  color:var(--muted);
+  margin:8px 0 25px;
+}
+
+.authTabs{
+  display:flex;
+  gap:8px;
+  margin-bottom:20px;
+}
+
+.authTabs button{
+  flex:1;
+}
+
+.authField{
+  margin-bottom:14px;
+}
+
+.authField label{
+  display:block;
+  color:var(--muted);
+  font-size:13px;
+  margin-bottom:6px;
+}
+
+.authField input{
+  width:100%;
+  padding:13px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  background:#0b1021;
+  color:white;
+  outline:none;
+}
+
+.authField input:focus{
+  border-color:var(--primary);
+}
+
+.primaryBtn,
+.secondaryBtn,
+.dangerBtn{
   border:0;
-  padding:12px;
-  border-radius:10px;
-  text-align:left;
+  border-radius:12px;
+  padding:12px 16px;
+  color:white;
+  font-weight:700;
 }
 
-.nav button:hover,
-.nav button.active{
-  background:#192347;
+.primaryBtn{
+  background:linear-gradient(135deg,var(--primary),#5f46d9);
+}
+
+.secondaryBtn{
+  background:#252c49;
+}
+
+.dangerBtn{
+  background:#8d2637;
+}
+
+.full{
+  width:100%;
+}
+
+.authMessage{
+  min-height:22px;
+  margin-top:14px;
+  text-align:center;
+  font-size:14px;
+}
+
+.authMessage.error{
+  color:#ff7183;
+}
+
+.authMessage.success{
+  color:#55dc91;
+}
+
+.forgot{
+  display:block;
+  background:none;
+  border:0;
+  color:var(--primary2);
+  margin:15px auto 0;
+}
+
+/* APP */
+
+#appShell{
+  min-height:100vh;
+  display:flex;
+}
+
+.sidebar{
+  width:250px;
+  background:#0c1020;
+  border-right:1px solid var(--border);
+  padding:18px;
+  position:fixed;
+  top:0;
+  bottom:0;
+  left:0;
+  overflow:auto;
+}
+
+.brand{
+  font-size:25px;
+  font-weight:900;
+  color:var(--primary2);
+  padding:10px;
+  margin-bottom:18px;
+}
+
+.navBtn{
+  width:100%;
+  background:none;
+  border:0;
+  color:#b9c1dd;
+  padding:12px;
+  border-radius:12px;
+  text-align:left;
+  margin-bottom:5px;
+}
+
+.navBtn:hover,
+.navBtn.active{
+  background:#1b2140;
   color:white;
 }
 
-.mobile-menu{
-  display:none;
+.main{
+  margin-left:250px;
+  width:calc(100% - 250px);
+  padding:25px;
 }
 
-/* MAIN */
-
-.main{
-  margin-left:235px;
-  width:calc(100% - 235px);
-  padding:25px;
+.mobileTop{
+  display:none;
 }
 
 .page{
@@ -119,31 +261,12 @@ button{
   display:block;
 }
 
-.topbar{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:15px;
-  margin-bottom:20px;
-}
-
 h1{
-  font-size:28px;
+  margin-top:0;
 }
 
-h2{
-  font-size:20px;
-  margin-bottom:12px;
-}
-
-h3{
-  font-size:16px;
-  margin-bottom:7px;
-}
-
-.subtitle{
+.muted{
   color:var(--muted);
-  margin-top:5px;
 }
 
 /* CARDS */
@@ -151,279 +274,168 @@ h3{
 .grid{
   display:grid;
   grid-template-columns:repeat(4,1fr);
-  gap:12px;
+  gap:15px;
 }
 
 .card{
-  background:linear-gradient(145deg,var(--panel),var(--panel2));
+  background:var(--panel);
   border:1px solid var(--border);
-  border-radius:15px;
-  padding:17px;
+  border-radius:18px;
+  padding:18px;
 }
 
-.stat{
-  font-size:27px;
+.statValue{
+  font-size:28px;
   font-weight:900;
-  margin-top:6px;
+  margin-top:8px;
 }
 
-.small{
+.statLabel{
   color:var(--muted);
   font-size:13px;
 }
 
-.blue{
-  color:var(--blue);
+.coin{
+  color:var(--yellow);
 }
 
-.yellow{
-  color:var(--yellow);
+.xp{
+  color:#9f8cff;
 }
 
 .green{
   color:var(--green);
 }
 
-.purple{
-  color:#b08cff;
+.blue{
+  color:var(--blue);
 }
 
-.red{
-  color:var(--red);
-}
+/* EXERCISES */
 
-/* BUTTONS */
-
-.btn{
-  border:0;
-  background:#27345f;
-  color:white;
-  padding:10px 14px;
-  border-radius:10px;
-  font-weight:700;
-}
-
-.btn:hover{
-  filter:brightness(1.15);
-}
-
-.btn.primary{
-  background:linear-gradient(135deg,var(--blue),var(--purple));
-}
-
-.btn.green{
-  background:#176c46;
-}
-
-.btn.red{
-  background:#752338;
-}
-
-/* SECTIONS */
-
-.section{
-  margin-top:20px;
-}
-
-.exercise-grid,
-.routine-grid,
-.reward-grid,
-.game-grid{
+.exerciseGrid,
+.routineGrid,
+.gameGrid,
+.rewardGrid{
   display:grid;
   grid-template-columns:repeat(3,1fr);
-  gap:12px;
+  gap:15px;
 }
 
-.exercise-card,
-.routine-card,
-.reward-card,
-.game-card{
+.exerciseCard,
+.routineCard,
+.gameCard,
+.rewardCard{
   background:var(--panel);
   border:1px solid var(--border);
-  border-radius:14px;
-  padding:15px;
+  border-radius:18px;
+  padding:18px;
 }
 
-.exercise-card p,
-.routine-card p,
-.reward-card p,
-.game-card p{
-  color:var(--muted);
+.exerciseIcon{
+  font-size:35px;
+}
+
+.exerciseCard h3,
+.routineCard h3,
+.gameCard h3,
+.rewardCard h3{
+  margin:10px 0 5px;
+}
+
+.small{
   font-size:13px;
-  margin:7px 0 12px;
+  color:var(--muted);
+}
+
+.cardActions{
+  display:flex;
+  gap:8px;
+  margin-top:15px;
+}
+
+.cardActions button{
+  flex:1;
 }
 
 /* PROGRESS */
 
 .progress{
-  height:9px;
-  background:#202944;
-  border-radius:99px;
+  height:10px;
+  background:#252c49;
+  border-radius:20px;
   overflow:hidden;
-  margin:8px 0;
+  margin-top:10px;
 }
 
-.progress div{
+.progressBar{
   height:100%;
-  background:linear-gradient(90deg,var(--blue),var(--purple));
+  background:linear-gradient(90deg,var(--primary),#b18cff);
+  width:0%;
 }
 
-/* FORMS */
+/* PROFILE */
 
-.form{
+.formGrid{
   display:grid;
-  gap:10px;
-  max-width:600px;
+  grid-template-columns:repeat(2,1fr);
+  gap:15px;
 }
 
-input,
-select,
-textarea{
-  background:#0b1123;
+.field label{
+  display:block;
+  color:var(--muted);
+  font-size:13px;
+  margin-bottom:6px;
+}
+
+.field input,
+.field select,
+.field textarea{
+  width:100%;
+  background:#0b1021;
   border:1px solid var(--border);
   color:white;
-  border-radius:9px;
-  padding:11px;
-  width:100%;
-}
-
-textarea{
-  min-height:90px;
-  resize:vertical;
+  padding:12px;
+  border-radius:12px;
 }
 
 /* CAMERA */
 
-.camera-box{
-  background:#05070e;
+.cameraBox{
+  background:#060912;
   border:1px solid var(--border);
-  border-radius:14px;
-  overflow:hidden;
-  position:relative;
-}
-
-.camera-box video,
-.camera-box canvas{
-  display:block;
-  width:100%;
-}
-
-.camera-box canvas{
-  position:absolute;
-  left:0;
-  top:0;
-}
-
-.camera-controls{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-  padding-top:10px;
-}
-
-.camera-stats{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:8px;
-  margin-top:10px;
-}
-
-.camera-stat{
-  background:var(--panel);
-  border:1px solid var(--border);
-  border-radius:10px;
-  padding:10px;
-  text-align:center;
-}
-
-/* FOOD */
-
-.food-preview{
-  max-width:300px;
-  border-radius:12px;
-  margin-top:10px;
-  display:none;
-}
-
-/* MODAL */
-
-.modal{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.7);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index:2000;
+  border-radius:18px;
   padding:15px;
 }
 
-.modal.open{
+#video{
+  width:100%;
+  max-height:500px;
+  object-fit:cover;
+  background:#000;
+  border-radius:14px;
+}
+
+.cameraControls{
   display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:12px;
 }
 
-.modal-box{
-  width:min(700px,100%);
-  max-height:90vh;
-  overflow:auto;
-  background:#10162a;
-  border:1px solid var(--border);
-  border-radius:16px;
-  padding:20px;
-}
-
-/* TOAST */
-
-.toast{
-  position:fixed;
-  right:20px;
-  bottom:20px;
-  background:#151d36;
-  border:1px solid var(--border);
-  padding:13px 17px;
-  border-radius:11px;
-  display:none;
-  z-index:5000;
-  box-shadow:0 10px 30px rgba(0,0,0,.3);
-}
-
-.toast.show{
-  display:block;
-}
-
-/* CLOUD */
-
-.cloud-status{
-  display:flex;
-  align-items:center;
-  gap:7px;
-  font-size:12px;
-  color:var(--muted);
-}
-
-.cloud-dot{
-  width:8px;
-  height:8px;
-  border-radius:50%;
-  background:#777;
-}
-
-.cloud-dot.online{
-  background:var(--green);
-}
-
-.cloud-dot.sync{
-  background:var(--yellow);
-}
-
-.cloud-dot.error{
-  background:var(--red);
+.repDisplay{
+  font-size:45px;
+  font-weight:900;
+  text-align:center;
+  margin:15px;
+  color:var(--green);
 }
 
 /* TABLE */
 
-.table-wrap{
-  overflow-x:auto;
+.tableWrap{
+  overflow:auto;
 }
 
 table{
@@ -431,53 +443,42 @@ table{
   border-collapse:collapse;
 }
 
-th,
-td{
-  padding:9px;
+th,td{
+  padding:11px;
   border-bottom:1px solid var(--border);
   text-align:left;
-  font-size:13px;
 }
 
 th{
-  color:#c8d2f3;
+  color:var(--muted);
+}
+
+/* TOAST */
+
+#toast{
+  position:fixed;
+  right:20px;
+  bottom:20px;
+  background:#202844;
+  border:1px solid var(--border);
+  padding:14px 18px;
+  border-radius:13px;
+  display:none;
+  z-index:10000;
 }
 
 /* MOBILE */
-
-.overlay{
-  display:none;
-}
 
 @media(max-width:900px){
 
   .sidebar{
     transform:translateX(-100%);
-    transition:.25s;
+    transition:.2s;
+    z-index:5000;
   }
 
   .sidebar.open{
     transform:translateX(0);
-  }
-
-  .overlay{
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,.55);
-    z-index:900;
-  }
-
-  .overlay.show{
-    display:block;
-  }
-
-  .mobile-menu{
-    display:block;
-    background:#151e3c;
-    border:1px solid var(--border);
-    color:white;
-    padding:9px 12px;
-    border-radius:9px;
   }
 
   .main{
@@ -486,23 +487,34 @@ th{
     padding:15px;
   }
 
+  .mobileTop{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:18px;
+  }
+
+  .mobileMenu{
+    background:#1b2140;
+    border:0;
+    color:white;
+    padding:10px 14px;
+    border-radius:10px;
+  }
+
   .grid{
     grid-template-columns:repeat(2,1fr);
   }
 
-  .exercise-grid,
-  .routine-grid,
-  .reward-grid,
-  .game-grid{
+  .exerciseGrid,
+  .routineGrid,
+  .gameGrid,
+  .rewardGrid{
     grid-template-columns:1fr;
   }
 
-  .camera-stats{
-    grid-template-columns:repeat(2,1fr);
-  }
-
-  h1{
-    font-size:23px;
+  .formGrid{
+    grid-template-columns:1fr;
   }
 }
 
@@ -510,18 +522,19 @@ th{
 
   .grid{
     grid-template-columns:1fr 1fr;
+    gap:9px;
   }
 
   .card{
-    padding:12px;
+    padding:13px;
   }
 
-  .stat{
+  .statValue{
     font-size:22px;
   }
 
-  .topbar{
-    align-items:flex-start;
+  .authCard{
+    padding:22px;
   }
 }
 </style>
@@ -529,587 +542,502 @@ th{
 
 <body>
 
-<div class="overlay" id="overlay"></div>
+<!-- LOADING -->
 
-<aside class="sidebar" id="sidebar">
+<div id="loadingScreen">
+  <div class="loadingBox">
+    <div class="logo">🪙 SPORTCOINS</div>
+    <div class="spinner"></div>
+    <p class="muted" id="loadingText">Conectando con SportCoins...</p>
+  </div>
+</div>
 
-  <div class="logo">
-    🏃 <span>Sport</span>Coins
+<!-- AUTH -->
+
+<section id="authScreen" class="hidden">
+
+  <div class="authCard">
+
+    <div class="authLogo">🪙 SportCoins</div>
+
+    <div class="authSubtitle">
+      Tu actividad, tus monedas y tus estadísticas.
+    </div>
+
+    <div class="authTabs">
+      <button class="primaryBtn" id="loginTab">Iniciar sesión</button>
+      <button class="secondaryBtn" id="registerTab">Crear cuenta</button>
+    </div>
+
+    <form id="authForm">
+
+      <div class="authField">
+        <label>Correo electrónico</label>
+        <input
+          id="authEmail"
+          type="email"
+          autocomplete="email"
+          required
+        >
+      </div>
+
+      <div class="authField">
+        <label>Contraseña</label>
+        <input
+          id="authPassword"
+          type="password"
+          autocomplete="current-password"
+          minlength="6"
+          required
+        >
+      </div>
+
+      <button
+        id="authSubmit"
+        class="primaryBtn full"
+        type="submit">
+        Iniciar sesión
+      </button>
+
+    </form>
+
+    <button class="forgot" id="forgotPassword">
+      ¿Olvidaste tu contraseña?
+    </button>
+
+    <div id="authMessage" class="authMessage"></div>
+
   </div>
 
-  <nav class="nav">
+</section>
 
-    <button class="active" data-page="home">
-      🏠 Inicio
-    </button>
+<!-- APP -->
 
-    <button data-page="profile">
-      👤 Perfil
-    </button>
+<div id="appShell" class="hidden">
 
-    <button data-page="exercises">
-      🏋️ Ejercicios
-    </button>
+  <aside class="sidebar" id="sidebar">
 
-    <button data-page="routines">
-      📋 Rutinas
-    </button>
+    <div class="brand">🪙 SportCoins</div>
 
-    <button data-page="camera">
-      📷 Cámara
-    </button>
+    <button class="navBtn active" data-page="home">🏠 Inicio</button>
+    <button class="navBtn" data-page="exercise">🏃 Ejercicios</button>
+    <button class="navBtn" data-page="routines">📋 Rutinas</button>
+    <button class="navBtn" data-page="camera">📹 Cámara</button>
+    <button class="navBtn" data-page="games">🎮 Minijuegos</button>
+    <button class="navBtn" data-page="rewards">🎁 Recompensas</button>
+    <button class="navBtn" data-page="food">🍎 Alimentación</button>
+    <button class="navBtn" data-page="absence">💤 Ausencias</button>
+    <button class="navBtn" data-page="stats">📊 Estadísticas</button>
+    <button class="navBtn" data-page="profile">👤 Perfil</button>
 
-    <button data-page="games">
-      🎮 Minijuegos
-    </button>
+  </aside>
 
-    <button data-page="rewards">
-      🎁 Recompensas
-    </button>
+  <main class="main">
 
-    <button data-page="food">
-      🍓 Alimentación
-    </button>
-
-    <button data-page="absence">
-      📅 Ausencias
-    </button>
-
-    <button data-page="stats">
-      📊 Estadísticas
-    </button>
-
-  </nav>
-
-</aside>
-
-<main class="main">
-
-  <div class="topbar">
-
-    <div>
-      <button class="mobile-menu" id="menuBtn">☰</button>
+    <div class="mobileTop">
+      <strong>🪙 SportCoins</strong>
+      <button class="mobileMenu" id="mobileMenu">☰</button>
     </div>
 
-    <div class="cloud-status">
-      <span class="cloud-dot" id="cloudDot"></span>
-      <span id="cloudText">Conectando...</span>
-    </div>
+    <!-- HOME -->
 
-  </div>
+    <section id="page-home" class="page active">
 
-  <!-- HOME -->
+      <h1>Hola, <span id="homeName">Sporter</span> 👋</h1>
+      <p class="muted">Aquí tienes tu progreso.</p>
 
-  <section class="page active" id="page-home">
+      <div class="grid">
 
-    <div class="topbar">
-      <div>
-        <h1>Hola, <span id="homeName">Atleta</span> 👋</h1>
-        <p class="subtitle">
-          Tu progreso. Tus ejercicios. Tus SportCoins.
-        </p>
-      </div>
-    </div>
-
-    <div class="grid">
-
-      <div class="card">
-        <div class="small">🪙 SportCoins</div>
-        <div class="stat yellow" id="coins">0</div>
-      </div>
-
-      <div class="card">
-        <div class="small">⚡ XP</div>
-        <div class="stat purple" id="xp">0</div>
-      </div>
-
-      <div class="card">
-        <div class="small">🏆 Nivel</div>
-        <div class="stat blue" id="level">1</div>
-      </div>
-
-      <div class="card">
-        <div class="small">🔥 Racha</div>
-        <div class="stat red" id="streak">0</div>
-      </div>
-
-      <div class="card">
-        <div class="small">🏋️ Ejercicios</div>
-        <div class="stat" id="exercisesCompleted">0</div>
-      </div>
-
-      <div class="card">
-        <div class="small">🔁 Repeticiones</div>
-        <div class="stat" id="repetitions">0</div>
-      </div>
-
-      <div class="card">
-        <div class="small">⏱️ Minutos activos</div>
-        <div class="stat" id="activeMinutes">0</div>
-      </div>
-
-      <div class="card">
-        <div class="small">🔥 Calorías estimadas</div>
-        <div class="stat green" id="calories">0</div>
-      </div>
-
-    </div>
-
-    <div class="section">
-
-      <div class="card">
-
-        <h2>⚡ Progreso del nivel</h2>
-
-        <div class="progress">
-          <div id="levelProgress"></div>
+        <div class="card">
+          <div class="statLabel">SportCoins</div>
+          <div class="statValue coin" id="homeCoins">0</div>
         </div>
 
-        <p class="small" id="levelText">
-          0 / 100 XP
-        </p>
+        <div class="card">
+          <div class="statLabel">XP</div>
+          <div class="statValue xp" id="homeXP">0</div>
+        </div>
+
+        <div class="card">
+          <div class="statLabel">Nivel</div>
+          <div class="statValue" id="homeLevel">1</div>
+        </div>
+
+        <div class="card">
+          <div class="statLabel">🔥 Racha</div>
+          <div class="statValue" id="homeStreak">0</div>
+        </div>
 
       </div>
 
-    </div>
-
-    <div class="section">
+      <br>
 
       <div class="card">
 
-        <h2>🔥 Objetivo de hoy</h2>
+        <h2>Progreso del nivel</h2>
 
-        <p class="small">
-          Completa actividad física y acumula XP y SportCoins.
-        </p>
+        <div id="levelText">Nivel 1</div>
+
+        <div class="progress">
+          <div class="progressBar" id="levelProgress"></div>
+        </div>
+
+      </div>
+
+      <br>
+
+      <div class="grid">
+
+        <div class="card">
+          <div class="statLabel">Ejercicios</div>
+          <div class="statValue" id="homeExercises">0</div>
+        </div>
+
+        <div class="card">
+          <div class="statLabel">Repeticiones</div>
+          <div class="statValue" id="homeReps">0</div>
+        </div>
+
+        <div class="card">
+          <div class="statLabel">Minutos activos</div>
+          <div class="statValue" id="homeMinutes">0</div>
+        </div>
+
+        <div class="card">
+          <div class="statLabel">Calorías estimadas</div>
+          <div class="statValue green" id="homeCalories">0</div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- EXERCISES -->
+
+    <section id="page-exercise" class="page">
+
+      <h1>🏃 Ejercicios</h1>
+      <p class="muted">
+        Registra actividad. Las repeticiones verificadas por cámara pueden contar.
+      </p>
+
+      <div class="exerciseGrid" id="exerciseGrid"></div>
+
+    </section>
+
+    <!-- ROUTINES -->
+
+    <section id="page-routines" class="page">
+
+      <h1>📋 Rutinas</h1>
+
+      <div class="routineGrid" id="routineGrid"></div>
+
+    </section>
+
+    <!-- CAMERA -->
+
+    <section id="page-camera" class="page">
+
+      <h1>📹 Cámara</h1>
+
+      <div class="cameraBox">
+
+        <div class="field">
+          <label>Ejercicio</label>
+
+          <select id="cameraExercise">
+
+            <option value="squat">Sentadillas</option>
+            <option value="abs">Abdominales</option>
+            <option value="pushup">Lagartijas</option>
+
+          </select>
+        </div>
 
         <br>
 
-        <button class="btn primary" onclick="openPage('routines')">
-          Ver rutinas
+        <video id="video" autoplay playsinline muted></video>
+
+        <div class="repDisplay">
+          <span id="cameraReps">0</span>
+        </div>
+
+        <div class="cameraControls">
+
+          <button
+            class="primaryBtn"
+            id="startCamera">
+            Iniciar cámara
+          </button>
+
+          <button
+            class="secondaryBtn"
+            id="stopCamera">
+            Detener
+          </button>
+
+        </div>
+
+        <p class="muted" id="cameraStatus">
+          La cámara analizará el movimiento localmente.
+        </p>
+
+      </div>
+
+    </section>
+
+    <!-- GAMES -->
+
+    <section id="page-games" class="page">
+
+      <h1>🎮 Minijuegos</h1>
+
+      <div class="gameGrid" id="gameGrid"></div>
+
+    </section>
+
+    <!-- REWARDS -->
+
+    <section id="page-rewards" class="page">
+
+      <h1>🎁 Recompensas</h1>
+
+      <p>
+        Tienes <strong class="coin" id="rewardCoins">0</strong> 🪙
+      </p>
+
+      <div class="rewardGrid" id="rewardGrid"></div>
+
+    </section>
+
+    <!-- FOOD -->
+
+    <section id="page-food" class="page">
+
+      <h1>🍎 Diario de alimentación</h1>
+
+      <div class="card">
+
+        <div class="field">
+          <label>¿Qué comiste?</label>
+          <textarea
+            id="foodText"
+            rows="4"
+            placeholder="Ejemplo: tacos de pollo con arroz y agua"></textarea>
+        </div>
+
+        <br>
+
+        <div class="field">
+          <label>Foto opcional</label>
+          <input
+            id="foodImage"
+            type="file"
+            accept="image/*">
+        </div>
+
+        <br>
+
+        <button
+          class="primaryBtn"
+          id="analyzeFood">
+          🤖 Analizar alimento
+        </button>
+
+        <div id="foodResult" style="margin-top:20px"></div>
+
+      </div>
+
+      <br>
+
+      <div class="card">
+
+        <h2>Historial</h2>
+
+        <div id="foodHistory"></div>
+
+      </div>
+
+    </section>
+
+    <!-- ABSENCE -->
+
+    <section id="page-absence" class="page">
+
+      <h1>💤 Ausencias</h1>
+
+      <div class="card">
+
+        <p class="muted">
+          Si sabes que no podrás entrenar, registra la ausencia antes.
+          Una ausencia aprobada no rompe tu racha.
+        </p>
+
+        <div class="formGrid">
+
+          <div class="field">
+            <label>Fecha</label>
+            <input id="absenceDate" type="date">
+          </div>
+
+          <div class="field">
+            <label>Motivo</label>
+
+            <select id="absenceReason">
+              <option>Enfermedad</option>
+              <option>Lesión</option>
+              <option>Escuela</option>
+              <option>Viaje</option>
+              <option>Compromiso familiar</option>
+              <option>Otro</option>
+            </select>
+
+          </div>
+
+        </div>
+
+        <br>
+
+        <button
+          class="primaryBtn"
+          id="requestAbsence">
+          Registrar solicitud
         </button>
 
       </div>
 
-    </div>
+      <br>
 
-  </section>
+      <div class="card">
 
-  <!-- PROFILE -->
+        <h2>Mis solicitudes</h2>
 
-  <section class="page" id="page-profile">
+        <div id="absenceList"></div>
 
-    <h1>👤 Perfil</h1>
+      </div>
 
-    <br>
+    </section>
 
-    <div class="card">
+    <!-- STATS -->
 
-      <div class="form">
+    <section id="page-stats" class="page">
 
-        <label>
-          Nombre
-          <input id="profileName" placeholder="Tu nombre">
-        </label>
+      <h1>📊 Estadísticas</h1>
 
-        <label>
-          Edad
-          <input id="profileAge" type="number" min="1" max="120">
-        </label>
+      <div class="grid">
 
-        <label>
-          Estatura (cm)
-          <input id="profileHeight" type="number">
-        </label>
+        <div class="card">
+          <div class="statLabel">Ejercicios</div>
+          <div class="statValue" id="statExercises">0</div>
+        </div>
 
-        <label>
-          Peso (kg)
-          <input id="profileWeight" type="number" step="0.1">
-        </label>
+        <div class="card">
+          <div class="statLabel">Repeticiones</div>
+          <div class="statValue" id="statReps">0</div>
+        </div>
 
-        <p class="small">
-          El peso es opcional y solo puede utilizarse para estimar
-          el gasto energético de la actividad. No se usa para crear
-          metas de pérdida de peso ni para rankings.
-        </p>
+        <div class="card">
+          <div class="statLabel">Minutos activos</div>
+          <div class="statValue" id="statMinutes">0</div>
+        </div>
 
-        <button class="btn primary" id="saveProfile">
+        <div class="card">
+          <div class="statLabel">Calorías estimadas</div>
+          <div class="statValue green" id="statCalories">0</div>
+        </div>
+
+      </div>
+
+      <br>
+
+      <div class="card">
+
+        <h2>📅 Estadísticas del mes</h2>
+
+        <div id="monthlyStats"></div>
+
+      </div>
+
+      <br>
+
+      <div class="card">
+
+        <h2>🏆 Récord personal</h2>
+
+        <div id="personalRecord">0</div>
+
+      </div>
+
+    </section>
+
+    <!-- PROFILE -->
+
+    <section id="page-profile" class="page">
+
+      <h1>👤 Perfil</h1>
+
+      <div class="card">
+
+        <div class="formGrid">
+
+          <div class="field">
+            <label>Nombre</label>
+            <input id="profileName">
+          </div>
+
+          <div class="field">
+            <label>Edad</label>
+            <input id="profileAge" type="number">
+          </div>
+
+          <div class="field">
+            <label>Estatura (cm)</label>
+            <input id="profileHeight" type="number">
+          </div>
+
+          <div class="field">
+            <label>Peso opcional (kg)</label>
+            <input id="profileWeight" type="number">
+          </div>
+
+        </div>
+
+        <br>
+
+        <button
+          class="primaryBtn"
+          id="saveProfile">
           Guardar perfil
         </button>
 
       </div>
 
-    </div>
-
-  </section>
-
-  <!-- EXERCISES -->
-
-  <section class="page" id="page-exercises">
-
-    <h1>🏋️ Ejercicios</h1>
-
-    <p class="subtitle">
-      Los ejercicios pueden registrarse manualmente o verificarse con cámara.
-    </p>
-
-    <br>
-
-    <div class="exercise-grid" id="exerciseGrid"></div>
-
-  </section>
-
-  <!-- ROUTINES -->
-
-  <section class="page" id="page-routines">
-
-    <h1>📋 Rutinas</h1>
-
-    <p class="subtitle">
-      Elige una rutina y completa sus ejercicios.
-    </p>
-
-    <br>
-
-    <div class="routine-grid" id="routineGrid"></div>
-
-  </section>
-
-  <!-- CAMERA -->
-
-  <section class="page" id="page-camera">
-
-    <h1>📷 Cámara</h1>
-
-    <p class="subtitle">
-      MediaPipe detecta tu postura y cuenta repeticiones válidas.
-    </p>
-
-    <br>
-
-    <div class="card">
-
-      <label>
-        Ejercicio
-        <select id="cameraExercise">
-          <option value="squat">Sentadillas</option>
-          <option value="abs">Abdominales</option>
-          <option value="pushup">Lagartijas</option>
-        </select>
-      </label>
-
       <br>
 
-      <div class="camera-box">
+      <div class="card">
 
-        <video id="video" autoplay muted playsinline></video>
+        <h2>Cuenta</h2>
 
-        <canvas id="poseCanvas"></canvas>
+        <p class="muted" id="accountEmail"></p>
 
-      </div>
-
-      <div class="camera-controls">
-
-        <button class="btn primary" id="startCamera">
-          📷 Iniciar cámara
-        </button>
-
-        <button class="btn red" id="stopCamera">
-          ⛔ Detener
+        <button
+          class="dangerBtn"
+          id="logoutBtn">
+          🚪 Cerrar sesión
         </button>
 
       </div>
 
-      <div class="camera-stats">
+    </section>
 
-        <div class="camera-stat">
-          <div class="small">Reps</div>
-          <strong id="cameraReps">0</strong>
-        </div>
-
-        <div class="camera-stat">
-          <div class="small">XP</div>
-          <strong id="cameraXP">0</strong>
-        </div>
-
-        <div class="camera-stat">
-          <div class="small">Coins</div>
-          <strong id="cameraCoins">0</strong>
-        </div>
-
-        <div class="camera-stat">
-          <div class="small">Calorías</div>
-          <strong id="cameraCalories">0</strong>
-        </div>
-
-      </div>
-
-      <br>
-
-      <button class="btn green" id="finishCamera">
-        ✅ Terminar sesión
-      </button>
-
-    </div>
-
-  </section>
-
-  <!-- GAMES -->
-
-  <section class="page" id="page-games">
-
-    <h1>🎮 Minijuegos</h1>
-
-    <p class="subtitle">
-      Todos están relacionados con actividad física.
-    </p>
-
-    <br>
-
-    <div class="game-grid" id="gameGrid"></div>
-
-  </section>
-
-  <!-- REWARDS -->
-
-  <section class="page" id="page-rewards">
-
-    <h1>🎁 Recompensas</h1>
-
-    <p class="subtitle">
-      Usa tus SportCoins para desbloquear recompensas dentro del sistema.
-    </p>
-
-    <br>
-
-    <div class="reward-grid" id="rewardGrid"></div>
-
-  </section>
-
-  <!-- FOOD -->
-
-  <section class="page" id="page-food">
-
-    <h1>🍓 Alimentación</h1>
-
-    <p class="subtitle">
-      Registra alimentos de forma informativa.
-    </p>
-
-    <br>
-
-    <div class="card">
-
-      <div class="form">
-
-        <label>
-          ¿Qué comiste?
-          <textarea id="foodText"
-            placeholder="Ejemplo: tacos de pollo, arroz y agua"></textarea>
-        </label>
-
-        <label>
-          Foto
-          <input type="file" id="foodImage" accept="image/*">
-        </label>
-
-        <img id="foodPreview" class="food-preview">
-
-        <button class="btn primary" id="analyzeFood">
-          🤖 Analizar alimento
-        </button>
-
-      </div>
-
-      <br>
-
-      <div id="foodResult"></div>
-
-    </div>
-
-    <br>
-
-    <div class="card">
-
-      <h2>📖 Historial</h2>
-
-      <div id="foodHistory"></div>
-
-    </div>
-
-  </section>
-
-  <!-- ABSENCE -->
-
-  <section class="page" id="page-absence">
-
-    <h1>📅 Ausencias</h1>
-
-    <p class="subtitle">
-      Si sabes que no podrás entrenar, registra la ausencia.
-    </p>
-
-    <br>
-
-    <div class="card">
-
-      <div class="form">
-
-        <label>
-          Fecha
-          <input type="date" id="absenceDate">
-        </label>
-
-        <label>
-          Motivo
-          <select id="absenceReason">
-            <option>Enfermedad</option>
-            <option>Lesión</option>
-            <option>Escuela</option>
-            <option>Viaje</option>
-            <option>Compromiso familiar</option>
-            <option>Otro</option>
-          </select>
-        </label>
-
-        <label>
-          Detalles
-          <textarea id="absenceDetails"></textarea>
-        </label>
-
-        <button class="btn primary" id="addAbsence">
-          Registrar ausencia
-        </button>
-
-      </div>
-
-    </div>
-
-    <br>
-
-    <div class="card">
-
-      <h2>Historial de ausencias</h2>
-
-      <div id="absenceHistory"></div>
-
-    </div>
-
-  </section>
-
-  <!-- STATS -->
-
-  <section class="page" id="page-stats">
-
-    <h1>📊 Estadísticas</h1>
-
-    <p class="subtitle">
-      Resumen de tu actividad.
-    </p>
-
-    <br>
-
-    <div class="grid">
-
-      <div class="card">
-        <div class="small">🏋️ Ejercicios</div>
-        <div class="stat" id="monthExercises">0</div>
-      </div>
-
-      <div class="card">
-        <div class="small">🔁 Repeticiones</div>
-        <div class="stat" id="monthReps">0</div>
-      </div>
-
-      <div class="card">
-        <div class="small">⏱️ Minutos</div>
-        <div class="stat" id="monthMinutes">0</div>
-      </div>
-
-      <div class="card">
-        <div class="small">🔥 Calorías estimadas</div>
-        <div class="stat green" id="monthCalories">0</div>
-      </div>
-
-      <div class="card">
-        <div class="small">🪙 Coins ganadas</div>
-        <div class="stat yellow" id="monthCoins">0</div>
-      </div>
-
-      <div class="card">
-        <div class="small">⚡ XP ganada</div>
-        <div class="stat purple" id="monthXP">0</div>
-      </div>
-
-    </div>
-
-    <div class="section">
-
-      <div class="card">
-
-        <h2>📅 Actividad del mes</h2>
-
-        <div class="table-wrap">
-
-          <table>
-
-            <thead>
-              <tr>
-                <th>Fecha</th>
-                <th>Ejercicio</th>
-                <th>Reps</th>
-                <th>Min</th>
-                <th>Coins</th>
-                <th>XP</th>
-                <th>Calorías</th>
-              </tr>
-            </thead>
-
-            <tbody id="activityTable"></tbody>
-
-          </table>
-
-        </div>
-
-      </div>
-
-    </div>
-
-  </section>
-
-</main>
-
-<div class="modal" id="modal">
-
-  <div class="modal-box">
-
-    <div id="modalContent"></div>
-
-    <br>
-
-    <button class="btn" onclick="closeModal()">
-      Cerrar
-    </button>
-
-  </div>
+  </main>
 
 </div>
 
-<div class="toast" id="toast"></div>
-
+<div id="toast"></div>
 
 <script type="module">
-
-import {
-  FilesetResolver,
-  PoseLandmarker
-} from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22";
-
-window.MediaPipeVision = {
-  FilesetResolver,
-  PoseLandmarker
-};
-
 
 /* =========================================================
    CONFIGURACIÓN
@@ -1119,55 +1047,44 @@ const SPORTCOINS_CONFIG = {
 
   supabase:{
     url:"https://jzgdzsqvaqpkrozsqklv.supabase.co",
-
-    // Publishable key de Supabase.
-    // NO pongas aquí GEMINI_API_KEY ni USDA_API_KEY.
     publishableKey:"sb_publishable_9_mOdh_jjM58Rt-f63bPsw_rRNErsA3"
   },
 
   edgeFunctions:{
     gemini:"analyze-food",
     usda:"food-nutrition"
+  },
+
+  app:{
+    name:"SportCoins",
+    version:"2.0.0"
   }
 
 };
 
-
-/* =========================================================
-   SUPABASE
-========================================================= */
-
 const supabase = window.supabase.createClient(
   SPORTCOINS_CONFIG.supabase.url,
-  SPORTCOINS_CONFIG.supabase.publishableKey,
-  {
-    auth:{
-      persistSession:true,
-      autoRefreshToken:true,
-      detectSessionInUrl:false
-    }
-  }
+  SPORTCOINS_CONFIG.supabase.publishableKey
 );
-
-let currentUser = null;
-let cloudReady = false;
-let syncTimer = null;
 
 
 /* =========================================================
    ESTADO
 ========================================================= */
 
-const defaultState = {
+const DEFAULT_STATE = {
 
   coins:0,
   xp:0,
   level:1,
+
   streak:0,
 
   exercisesCompleted:0,
   repetitions:0,
+
   activeMinutes:0,
+  caloriesBurnedTotal:0,
 
   personalRecord:0,
 
@@ -1175,8 +1092,6 @@ const defaultState = {
   todayCoins:0,
 
   lastWorkoutDate:null,
-
-  caloriesBurnedTotal:0,
 
   profile:{
     name:"",
@@ -1189,492 +1104,112 @@ const defaultState = {
   absences:[],
   completedRewards:[],
   activityLog:[]
+
 };
 
-let state = loadLocalState();
+let state = structuredClone(DEFAULT_STATE);
 
+let currentUser = null;
+let authMode = "login";
 
-/* =========================================================
-   LOCAL STORAGE
-========================================================= */
+let cameraStream = null;
+let poseLandmarker = null;
+let cameraRunning = false;
 
-function loadLocalState(){
-
-  try{
-
-    const saved =
-      localStorage.getItem("sportcoins_state");
-
-    if(!saved){
-      return structuredClone(defaultState);
-    }
-
-    return mergeState(
-      structuredClone(defaultState),
-      JSON.parse(saved)
-    );
-
-  }catch(error){
-
-    console.error(error);
-
-    return structuredClone(defaultState);
-  }
-}
-
-
-function mergeState(base, incoming){
-
-  return {
-
-    ...base,
-    ...incoming,
-
-    profile:{
-      ...base.profile,
-      ...(incoming.profile || {})
-    },
-
-    foodHistory:Array.isArray(incoming.foodHistory)
-      ? incoming.foodHistory
-      : [],
-
-    absences:Array.isArray(incoming.absences)
-      ? incoming.absences
-      : [],
-
-    completedRewards:Array.isArray(incoming.completedRewards)
-      ? incoming.completedRewards
-      : [],
-
-    activityLog:Array.isArray(incoming.activityLog)
-      ? incoming.activityLog
-      : []
-  };
-}
-
-
-function saveLocal(){
-
-  localStorage.setItem(
-    "sportcoins_state",
-    JSON.stringify(state)
-  );
-}
-
-
-/* =========================================================
-   CLOUD AUTH
-========================================================= */
-
-async function initCloud(){
-
-  setCloudStatus(
-    "sync",
-    "Conectando con Supabase..."
-  );
-
-  try{
-
-    let {
-      data:{
-        session
-      }
-    } = await supabase.auth.getSession();
-
-    if(!session){
-
-      const {
-        data,
-        error
-      } = await supabase.auth.signInAnonymously();
-
-      if(error){
-        throw error;
-      }
-
-      session = data.session;
-    }
-
-    currentUser = session.user;
-
-    cloudReady = true;
-
-    setCloudStatus(
-      "online",
-      "Guardado en la nube"
-    );
-
-    await loadCloudState();
-
-  }catch(error){
-
-    console.error(
-      "Supabase:",
-      error
-    );
-
-    cloudReady = false;
-
-    setCloudStatus(
-      "error",
-      "Modo local"
-    );
-
-    toast(
-      "Supabase no está disponible. Se usará el respaldo local."
-    );
-  }
-}
-
-
-/* =========================================================
-   CLOUD LOAD
-========================================================= */
-
-async function loadCloudState(){
-
-  if(!currentUser){
-    return;
-  }
-
-  try{
-
-    const {
-      data,
-      error
-    } = await supabase
-
-      .from("sportcoins_profiles")
-
-      .select("state")
-
-      .eq("id",currentUser.id)
-
-      .maybeSingle();
-
-    if(error){
-      throw error;
-    }
-
-    if(data?.state){
-
-      state = mergeState(
-        state,
-        data.state
-      );
-
-      saveLocal();
-
-      renderAll();
-
-    }else{
-
-      await saveCloud(true);
-    }
-
-  }catch(error){
-
-    console.error(
-      "Error cargando nube:",
-      error
-    );
-
-    setCloudStatus(
-      "error",
-      "Error de nube"
-    );
-  }
-}
-
-
-/* =========================================================
-   CLOUD SAVE
-========================================================= */
-
-async function saveCloud(immediate=false){
-
-  saveLocal();
-
-  if(!cloudReady || !currentUser){
-    return;
-  }
-
-  if(!immediate){
-
-    clearTimeout(syncTimer);
-
-    syncTimer = setTimeout(
-      () => saveCloud(true),
-      800
-    );
-
-    setCloudStatus(
-      "sync",
-      "Guardando..."
-    );
-
-    return;
-  }
-
-  try{
-
-    const {
-      error
-    } = await supabase
-
-      .from("sportcoins_profiles")
-
-      .upsert({
-
-        id:currentUser.id,
-
-        state:state,
-
-        updated_at:new Date().toISOString()
-
-      },{
-        onConflict:"id"
-      });
-
-    if(error){
-      throw error;
-    }
-
-    setCloudStatus(
-      "online",
-      "Guardado en la nube"
-    );
-
-  }catch(error){
-
-    console.error(
-      "Error guardando:",
-      error
-    );
-
-    setCloudStatus(
-      "error",
-      "No se pudo sincronizar"
-    );
-  }
-}
-
-
-/* =========================================================
-   CLOUD ACTIVITY
-========================================================= */
-
-async function saveActivityCloud(activity){
-
-  if(!cloudReady || !currentUser){
-    return;
-  }
-
-  try{
-
-    const {
-      error
-    } = await supabase
-
-      .from("sportcoins_activity")
-
-      .insert({
-
-        user_id:currentUser.id,
-
-        activity_date:
-          activity.date,
-
-        exercise_id:
-          activity.exerciseId,
-
-        exercise_name:
-          activity.exerciseName,
-
-        repetitions:
-          activity.repetitions || 0,
-
-        active_minutes:
-          activity.activeMinutes || 0,
-
-        coins:
-          activity.coins || 0,
-
-        xp:
-          activity.xp || 0,
-
-        calories:
-          activity.calories || 0
-
-      });
-
-    if(error){
-      throw error;
-    }
-
-  }catch(error){
-
-    console.error(
-      "Activity cloud error:",
-      error
-    );
-  }
-}
-
-
-/* =========================================================
-   COIN TRANSACTION
-========================================================= */
-
-async function saveCoinTransaction(
-  amount,
-  reason
-){
-
-  if(!cloudReady || !currentUser){
-    return;
-  }
-
-  try{
-
-    await supabase
-
-      .from("sportcoins_coin_transactions")
-
-      .insert({
-
-        user_id:currentUser.id,
-
-        amount,
-
-        reason
-
-      });
-
-  }catch(error){
-
-    console.error(
-      "Coin transaction:",
-      error
-    );
-  }
-}
-
-
-/* =========================================================
-   CLOUD STATUS
-========================================================= */
-
-function setCloudStatus(type,text){
-
-  const dot =
-    document.getElementById("cloudDot");
-
-  const label =
-    document.getElementById("cloudText");
-
-  if(!dot || !label){
-    return;
-  }
-
-  dot.className =
-    "cloud-dot " + type;
-
-  label.textContent =
-    text;
-}
+let cameraRepCount = 0;
+let cameraPhase = "up";
 
 
 /* =========================================================
    EJERCICIOS
 ========================================================= */
 
-const exercises = {
+const EXERCISES = {
 
   abs:{
     name:"Abdominales",
+    icon:"🔥",
     coins:1,
     xp:2,
     met:3.8,
-    secPerRep:3,
-    unit:"rep"
+    secPerRep:3
   },
 
   squat:{
     name:"Sentadillas",
+    icon:"🦵",
     coins:1,
     xp:2,
     met:5,
-    secPerRep:3,
-    unit:"rep"
+    secPerRep:3
   },
 
   pushup:{
     name:"Lagartijas",
+    icon:"💪",
     coins:2,
     xp:3,
     met:4,
-    secPerRep:4,
-    unit:"rep"
+    secPerRep:4
   },
 
   lunge:{
     name:"Desplantes",
+    icon:"🚶",
     coins:1,
     xp:2,
     met:4,
-    secPerRep:3,
-    unit:"rep"
+    secPerRep:3
   },
 
   burpee:{
     name:"Burpees",
+    icon:"🔥",
     coins:3,
     xp:4,
     met:8,
-    secPerRep:5,
-    unit:"rep"
+    secPerRep:5
   },
 
   jump:{
     name:"Saltos",
+    icon:"⬆️",
     coins:1,
     xp:2,
     met:8,
-    secPerRep:2,
-    unit:"rep"
+    secPerRep:2
   },
 
   mountain:{
     name:"Mountain Climbers",
+    icon:"🏔️",
     coins:1,
     xp:2,
     met:8,
-    secPerRep:2,
-    unit:"rep"
+    secPerRep:2
   },
 
   jumpingJack:{
     name:"Jumping Jacks",
+    icon:"⭐",
     coins:1,
     xp:2,
     met:8,
-    secPerRep:2,
-    unit:"rep"
+    secPerRep:2
   },
 
   bridge:{
     name:"Puente de glúteos",
+    icon:"🌉",
     coins:1,
     xp:2,
     met:3.5,
-    secPerRep:3,
-    unit:"rep"
+    secPerRep:3
   },
 
   plank:{
     name:"Plancha",
+    icon:"🧱",
     coins:15,
     xp:20,
     met:3.3,
@@ -1683,24 +1218,25 @@ const exercises = {
 
   calf:{
     name:"Pantorrillas",
+    icon:"🦶",
     coins:1,
     xp:2,
     met:3.5,
-    secPerRep:2,
-    unit:"rep"
+    secPerRep:2
   },
 
   highKnees:{
     name:"Rodillas altas",
+    icon:"🏃",
     coins:1,
     xp:2,
     met:8,
-    secPerRep:2,
-    unit:"rep"
+    secPerRep:2
   },
 
   running:{
     name:"Running",
+    icon:"🏃‍♂️",
     coins:20,
     xp:30,
     met:8,
@@ -1714,82 +1250,82 @@ const exercises = {
    RUTINAS
 ========================================================= */
 
-const routines = {
+const ROUTINES = {
 
   principiante:{
     name:"Principiante",
-    exercises:{
-      squat:10,
-      abs:10,
-      jump:20
-    }
+    exercises:[
+      ["squat",10],
+      ["abs",10],
+      ["jump",20]
+    ]
   },
 
   fuerza:{
     name:"Fuerza",
-    exercises:{
-      squat:15,
-      pushup:5,
-      lunge:10,
-      bridge:15
-    }
+    exercises:[
+      ["squat",15],
+      ["pushup",5],
+      ["lunge",10],
+      ["bridge",15]
+    ]
   },
 
   cardio:{
     name:"Cardio",
-    exercises:{
-      jumpingJack:30,
-      highKnees:30,
-      jump:30
-    }
+    exercises:[
+      ["jumpingJack",30],
+      ["highKnees",30],
+      ["jump",30]
+    ]
   },
 
   hiit:{
     name:"HIIT",
-    exercises:{
-      burpee:5,
-      mountain:20,
-      jumpingJack:30,
-      squat:15
-    }
+    exercises:[
+      ["burpee",5],
+      ["mountain",20],
+      ["jumpingJack",30],
+      ["squat",15]
+    ]
   },
 
   core:{
     name:"Core",
-    exercises:{
-      abs:15,
-      plank:1,
-      bridge:15
-    }
+    exercises:[
+      ["abs",15],
+      ["plank",1],
+      ["bridge",15]
+    ]
   },
 
   intermedio:{
     name:"Intermedio",
-    exercises:{
-      squat:20,
-      pushup:8,
-      lunge:15,
-      jump:30
-    }
+    exercises:[
+      ["squat",20],
+      ["pushup",8],
+      ["lunge",15],
+      ["jump",30]
+    ]
   },
 
   avanzado:{
     name:"Avanzado",
-    exercises:{
-      burpee:10,
-      pushup:12,
-      squat:25,
-      mountain:30
-    }
+    exercises:[
+      ["burpee",10],
+      ["pushup",12],
+      ["squat",25],
+      ["mountain",30]
+    ]
   },
 
   movilidad:{
     name:"Movilidad",
-    exercises:{
-      bridge:10,
-      calf:15,
-      lunge:10
-    }
+    exercises:[
+      ["bridge",10],
+      ["calf",15],
+      ["lunge",10]
+    ]
   }
 
 };
@@ -1799,420 +1335,208 @@ const routines = {
    MINIJUEGOS
 ========================================================= */
 
-const games = {
+const GAMES = [
 
-  squatChallenge:{
+  {
     name:"Squat Challenge",
-    icon:"🏋️",
+    icon:"🦵",
     goal:20,
-    seconds:60,
-    reward:30
+    time:60,
+    reward:30,
+    exercise:"squat"
   },
 
-  jumpChallenge:{
+  {
     name:"Jump Challenge",
-    icon:"🦘",
+    icon:"⬆️",
     goal:30,
-    seconds:60,
-    reward:35
+    time:60,
+    reward:35,
+    exercise:"jump"
   },
 
-  plankChallenge:{
+  {
     name:"Plank Challenge",
-    icon:"💪",
+    icon:"🧱",
     goal:60,
-    seconds:60,
-    reward:50
+    time:60,
+    reward:50,
+    exercise:"plank"
   },
 
-  balanceChallenge:{
+  {
     name:"Balance Challenge",
-    icon:"🧘",
+    icon:"⚖️",
     goal:30,
-    seconds:45,
-    reward:40
+    time:45,
+    reward:40,
+    exercise:"balance"
   }
 
-};
+];
 
 
 /* =========================================================
    RECOMPENSAS
 ========================================================= */
 
-const rewards = {
+const REWARDS = [
 
-  dessert:{
+  {
     name:"Postre",
     icon:"🍰",
-    price:250
+    cost:250
   },
 
-  snack:{
+  {
     name:"Snack especial",
     icon:"🍓",
-    price:150
+    cost:150
   },
 
-  rest:{
+  {
     name:"Día de descanso",
     icon:"😴",
-    price:400
+    cost:400
   },
 
-  light:{
+  {
     name:"Rutina ligera",
     icon:"🧘",
-    price:100
+    cost:100
   },
 
-  chooseRoutine:{
+  {
     name:"Elegir rutina del día",
     icon:"🏃",
-    price:100
+    cost:100
   },
 
-  skipExercise:{
-    name:"Saltarse un ejercicio",
+  {
+    name:"Saltar un ejercicio",
     icon:"💪",
-    price:150
+    cost:150
   },
 
-  streakProtection:{
+  {
     name:"Protección de racha",
     icon:"🔥",
-    price:300
+    cost:300
   },
 
-  doubleXP:{
+  {
     name:"Doble XP siguiente rutina",
     icon:"🏆",
-    price:250
+    cost:250
   },
 
-  bonusCoins:{
-    name:"Bonus Coins siguiente rutina",
+  {
+    name:"Bonus de monedas",
     icon:"🪙",
-    price:300
+    cost:300
   },
 
-  unlockExercise:{
+  {
     name:"Desbloquear ejercicio",
     icon:"🎯",
-    price:350
+    cost:350
   },
 
-  unlockGame:{
+  {
     name:"Desbloquear minijuego",
     icon:"🎮",
-    price:300
+    cost:300
   }
 
-};
+];
 
 
 /* =========================================================
-   NAVEGACIÓN
+   UTILIDADES
 ========================================================= */
 
-const sidebar =
-  document.getElementById("sidebar");
+function cloneDefault(){
+  return structuredClone(DEFAULT_STATE);
+}
 
-const overlay =
-  document.getElementById("overlay");
+function today(){
 
-const menuBtn =
-  document.getElementById("menuBtn");
+  return new Date()
+    .toISOString()
+    .slice(0,10);
 
+}
 
-menuBtn.onclick = () => {
+function showToast(message){
 
-  sidebar.classList.toggle("open");
+  const toast = document.getElementById("toast");
 
-  overlay.classList.toggle(
-    "show"
+  toast.textContent = message;
+  toast.style.display = "block";
+
+  clearTimeout(showToast.timer);
+
+  showToast.timer = setTimeout(()=>{
+    toast.style.display = "none";
+  },3000);
+
+}
+
+function cacheKey(){
+
+  return currentUser
+    ? `sportcoins_cache_${currentUser.id}`
+    : "sportcoins_cache";
+
+}
+
+function saveLocal(){
+
+  localStorage.setItem(
+    cacheKey(),
+    JSON.stringify(state)
   );
-};
 
+}
 
-overlay.onclick =
-  closeSidebar;
+function loadLocal(){
 
+  try{
 
-document.addEventListener(
-  "keydown",
-  event => {
+    const raw = localStorage.getItem(cacheKey());
 
-    if(event.key === "Escape"){
-      closeSidebar();
+    if(raw){
+
+      const parsed = JSON.parse(raw);
+
+      state = {
+        ...cloneDefault(),
+        ...parsed,
+        profile:{
+          ...cloneDefault().profile,
+          ...(parsed.profile || {})
+        }
+      };
+
     }
 
+  }catch(error){
+
+    console.error(error);
+
   }
-);
 
-
-function closeSidebar(){
-
-  sidebar.classList.remove(
-    "open"
-  );
-
-  overlay.classList.remove(
-    "show"
-  );
 }
 
+function escapeHTML(value){
+
+  return String(value ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
 
-document.querySelectorAll(
-  ".nav button"
-).forEach(button => {
-
-  button.onclick = () => {
-
-    document.querySelectorAll(
-      ".nav button"
-    ).forEach(x =>
-      x.classList.remove("active")
-    );
-
-    button.classList.add("active");
-
-    openPage(
-      button.dataset.page
-    );
-
-    closeSidebar();
-  };
-
-});
-
-
-window.openPage = function(page){
-
-  document.querySelectorAll(
-    ".page"
-  ).forEach(x =>
-    x.classList.remove("active")
-  );
-
-  const target =
-    document.getElementById(
-      "page-" + page
-    );
-
-  if(target){
-    target.classList.add("active");
-  }
-
-  renderAll();
-};
-
-
-/* =========================================================
-   TOAST
-========================================================= */
-
-let toastTimer;
-
-function toast(message){
-
-  const el =
-    document.getElementById("toast");
-
-  el.textContent =
-    message;
-
-  el.classList.add("show");
-
-  clearTimeout(toastTimer);
-
-  toastTimer =
-    setTimeout(
-      () => el.classList.remove("show"),
-      3000
-    );
-}
-
-
-/* =========================================================
-   CALORÍAS
-========================================================= */
-
-function calculateCalories(
-  exerciseId,
-  amount
-){
-
-  const exercise =
-    exercises[exerciseId];
-
-  if(!exercise){
-    return 0;
-  }
-
-  const weight =
-    Number(state.profile.weight);
-
-  if(!weight || weight <= 0){
-    return 0;
-  }
-
-  let minutes = 0;
-
-  if(exercise.unit === "min"){
-
-    minutes = Number(amount);
-
-  }else{
-
-    minutes =
-      Number(amount) *
-      Number(exercise.secPerRep) /
-      60;
-  }
-
-  const calories =
-    exercise.met *
-    3.5 *
-    weight /
-    200 *
-    minutes;
-
-  return Math.max(
-    0,
-    Number(calories.toFixed(1))
-  );
-}
-
-
-/* =========================================================
-   REGISTRAR ACTIVIDAD
-========================================================= */
-
-async function registerActivity(
-  exerciseId,
-  amount,
-  options={}
-){
-
-  const exercise =
-    exercises[exerciseId];
-
-  if(!exercise){
-    return;
-  }
-
-  amount =
-    Number(amount);
-
-  if(!amount || amount <= 0){
-    return;
-  }
-
-  const coins =
-    Math.round(
-      amount * exercise.coins
-    );
-
-  const xp =
-    Math.round(
-      amount * exercise.xp
-    );
-
-  const calories =
-    calculateCalories(
-      exerciseId,
-      amount
-    );
-
-  const activeMinutes =
-    exercise.unit === "min"
-      ? amount
-      : amount * exercise.secPerRep / 60;
-
-  state.coins += coins;
-
-  state.xp += xp;
-
-  state.exercisesCompleted += 1;
-
-  if(exercise.unit === "rep"){
-    state.repetitions += amount;
-  }
-
-  state.activeMinutes +=
-    activeMinutes;
-
-  state.caloriesBurnedTotal +=
-    calories;
-
-  state.todayCoins += coins;
-
-  state.todayXP += xp;
-
-  state.personalRecord =
-    Math.max(
-      state.personalRecord,
-      amount
-    );
-
-  updateLevel();
-
-  updateStreak();
-
-  const activity = {
-
-    date:getLocalDate(),
-
-    exerciseId,
-
-    exerciseName:
-      exercise.name,
-
-    repetitions:
-      exercise.unit === "rep"
-        ? amount
-        : 0,
-
-    activeMinutes,
-
-    coins,
-
-    xp,
-
-    calories
-
-  };
-
-  state.activityLog.unshift(
-    activity
-  );
-
-  if(state.activityLog.length > 500){
-    state.activityLog =
-      state.activityLog.slice(0,500);
-  }
-
-  saveLocal();
-
-  await saveCloud();
-
-  saveActivityCloud(
-    activity
-  );
-
-  saveCoinTransaction(
-    coins,
-    `Ejercicio: ${exercise.name}`
-  );
-
-  renderAll();
-
-  toast(
-    `+${coins} SportCoins · +${xp} XP`
-  );
-
-  return activity;
 }
 
 
@@ -2220,872 +1544,910 @@ async function registerActivity(
    NIVEL
 ========================================================= */
 
-function updateLevel(){
+function calculateLevel(){
 
-  const levels = [
-
-    [0,"Principiante"],
-    [100,"Activo"],
-    [300,"Constante"],
-    [700,"Entrenador"],
-    [1500,"Atleta"],
-    [3000,"Élite"],
-    [6000,"Leyenda"]
-
+  const thresholds = [
+    0,
+    100,
+    300,
+    600,
+    1000,
+    1500,
+    2200,
+    3000
   ];
 
-  let current = 1;
+  let level = 1;
 
-  for(
-    let i=0;
-    i<levels.length;
-    i++
-  ){
+  for(let i=0;i<thresholds.length;i++){
 
-    if(state.xp >= levels[i][0]){
-      current = i + 1;
+    if(state.xp >= thresholds[i]){
+      level = i+1;
     }
 
   }
 
-  state.level =
-    Math.min(
-      7,
-      current
-    );
+  return Math.min(level,7);
+
+}
+
+function levelName(level){
+
+  return [
+    "",
+    "Principiante",
+    "Activo",
+    "Constante",
+    "Entrenador",
+    "Atleta",
+    "Élite",
+    "Leyenda"
+  ][level] || "Principiante";
+
 }
 
 
 /* =========================================================
-   RACHA
+   CALORÍAS
 ========================================================= */
 
-function updateStreak(){
+function estimateCalories(exerciseId, amount){
 
-  const today =
-    getLocalDate();
+  const ex = EXERCISES[exerciseId];
 
-  if(state.lastWorkoutDate === today){
-    return;
+  if(!ex) return 0;
+
+  const weight = Number(state.profile.weight);
+
+  if(!weight || weight <= 0){
+
+    return 0;
+
   }
 
-  if(!state.lastWorkoutDate){
+  let minutes = 0;
 
-    state.streak = 1;
+  if(ex.unit === "min"){
+
+    minutes = Number(amount);
 
   }else{
 
-    const previous =
-      new Date(
-        state.lastWorkoutDate +
-        "T00:00:00"
+    minutes =
+      Number(amount) *
+      Number(ex.secPerRep || 0) /
+      60;
+
+  }
+
+  return Math.round(
+    ex.met *
+    3.5 *
+    weight /
+    200 *
+    minutes
+  );
+
+}
+
+
+/* =========================================================
+   SUPABASE
+========================================================= */
+
+async function withTimeout(promise, ms=10000){
+
+  return await Promise.race([
+
+    promise,
+
+    new Promise((_,reject)=>{
+
+      setTimeout(
+        ()=>reject(new Error("Tiempo de conexión agotado.")),
+        ms
       );
 
-    const current =
-      new Date(
-        today +
-        "T00:00:00"
-      );
+    })
 
-    const diff =
-      Math.round(
-        (current - previous) /
-        86400000
-      );
+  ]);
 
-    if(diff === 1){
+}
 
-      state.streak += 1;
+
+async function loadCloudState(){
+
+  if(!currentUser) return;
+
+  try{
+
+    const {data,error} = await withTimeout(
+
+      supabase
+        .from("sportcoins_profiles")
+        .select("state")
+        .eq("id",currentUser.id)
+        .maybeSingle(),
+
+      10000
+
+    );
+
+    if(error) throw error;
+
+    if(data?.state){
+
+      state = {
+
+        ...cloneDefault(),
+        ...data.state,
+
+        profile:{
+          ...cloneDefault().profile,
+          ...(data.state.profile || {})
+        }
+
+      };
 
     }else{
 
-      const approved =
-        state.absences.some(
-          absence =>
-            absence.date === today &&
-            absence.approved !== false
-        );
+      await createCloudProfile();
 
-      if(!approved){
-        state.streak = 1;
-      }
     }
+
+    saveLocal();
+
+  }catch(error){
+
+    console.error("Cloud load:",error);
+
+    loadLocal();
+
+    showToast(
+      "No se pudo cargar la nube. Usando caché local."
+    );
+
   }
 
-  state.lastWorkoutDate =
-    today;
 }
 
 
-/* =========================================================
-   FECHA
-========================================================= */
+async function createCloudProfile(){
 
-function getLocalDate(){
+  const {error} = await supabase
+    .from("sportcoins_profiles")
+    .insert({
 
-  const d =
-    new Date();
+      id:currentUser.id,
+      state:state
 
-  const year =
-    d.getFullYear();
+    });
 
-  const month =
-    String(
-      d.getMonth()+1
-    ).padStart(2,"0");
+  if(error){
 
-  const day =
-    String(
-      d.getDate()
-    ).padStart(2,"0");
+    if(error.code === "23505") return;
 
-  return `${year}-${month}-${day}`;
+    throw error;
+
+  }
+
 }
 
 
-/* =========================================================
-   RENDER
-========================================================= */
+async function saveCloudState(){
 
-function renderAll(){
-
-  renderHome();
-  renderProfile();
-  renderExercises();
-  renderRoutines();
-  renderGames();
-  renderRewards();
-  renderFood();
-  renderAbsences();
-  renderStats();
-}
-
-
-function renderHome(){
-
-  document.getElementById(
-    "homeName"
-  ).textContent =
-    state.profile.name ||
-    "Atleta";
-
-  document.getElementById(
-    "coins"
-  ).textContent =
-    Math.floor(state.coins);
-
-  document.getElementById(
-    "xp"
-  ).textContent =
-    Math.floor(state.xp);
-
-  document.getElementById(
-    "level"
-  ).textContent =
-    state.level;
-
-  document.getElementById(
-    "streak"
-  ).textContent =
-    state.streak;
-
-  document.getElementById(
-    "exercisesCompleted"
-  ).textContent =
-    state.exercisesCompleted;
-
-  document.getElementById(
-    "repetitions"
-  ).textContent =
-    state.repetitions;
-
-  document.getElementById(
-    "activeMinutes"
-  ).textContent =
-    Math.round(
-      state.activeMinutes
-    );
-
-  document.getElementById(
-    "calories"
-  ).textContent =
-    Math.round(
-      state.caloriesBurnedTotal
-    );
-
-  const levelStart =
-    [
-      0,
-      100,
-      300,
-      700,
-      1500,
-      3000,
-      6000
-    ][state.level-1] || 0;
-
-  const levelEnd =
-    [
-      100,
-      300,
-      700,
-      1500,
-      3000,
-      6000,
-      10000
-    ][state.level-1] || 10000;
-
-  const progress =
-    Math.min(
-      100,
-      Math.max(
-        0,
-        (
-          (state.xp-levelStart) /
-          (levelEnd-levelStart)
-        ) * 100
-      )
-    );
-
-  document.getElementById(
-    "levelProgress"
-  ).style.width =
-    progress + "%";
-
-  document.getElementById(
-    "levelText"
-  ).textContent =
-    `${Math.max(0,state.xp-levelStart)} / ${levelEnd-levelStart} XP`;
-}
-
-
-/* =========================================================
-   PROFILE
-========================================================= */
-
-function renderProfile(){
-
-  document.getElementById(
-    "profileName"
-  ).value =
-    state.profile.name || "";
-
-  document.getElementById(
-    "profileAge"
-  ).value =
-    state.profile.age || "";
-
-  document.getElementById(
-    "profileHeight"
-  ).value =
-    state.profile.height || "";
-
-  document.getElementById(
-    "profileWeight"
-  ).value =
-    state.profile.weight || "";
-}
-
-
-document.getElementById(
-  "saveProfile"
-).onclick = async () => {
-
-  state.profile.name =
-    document.getElementById(
-      "profileName"
-    ).value.trim();
-
-  state.profile.age =
-    document.getElementById(
-      "profileAge"
-    ).value;
-
-  state.profile.height =
-    document.getElementById(
-      "profileHeight"
-    ).value;
-
-  state.profile.weight =
-    document.getElementById(
-      "profileWeight"
-    ).value;
+  if(!currentUser) return;
 
   saveLocal();
 
-  await saveCloud(true);
+  try{
 
-  renderAll();
+    const {error} = await withTimeout(
 
-  toast(
-    "Perfil guardado en Supabase ☁️"
-  );
-};
+      supabase
+        .from("sportcoins_profiles")
+        .upsert({
+
+          id:currentUser.id,
+          state:state,
+          updated_at:new Date().toISOString()
+
+        }),
+
+      10000
+
+    );
+
+    if(error) throw error;
+
+  }catch(error){
+
+    console.error("Cloud save:",error);
+
+    showToast(
+      "Guardado local. La nube no respondió."
+    );
+
+  }
+
+}
+
+
+async function insertActivity(exerciseId,amount,coins,xp,minutes,calories){
+
+  if(!currentUser) return;
+
+  const ex = EXERCISES[exerciseId];
+
+  try{
+
+    const {error} = await supabase
+      .from("sportcoins_activity")
+      .insert({
+
+        user_id:currentUser.id,
+
+        activity_date:today(),
+
+        exercise_id:exerciseId,
+
+        exercise_name:ex?.name || exerciseId,
+
+        repetitions:
+          ex?.unit === "min"
+            ? 0
+            : Math.round(amount),
+
+        active_minutes:Number(minutes || 0),
+
+        coins:Number(coins || 0),
+
+        xp:Number(xp || 0),
+
+        calories:Number(calories || 0)
+
+      });
+
+    if(error) throw error;
+
+  }catch(error){
+
+    console.error("Activity insert:",error);
+
+  }
+
+}
+
+
+async function insertTransaction(amount,reason){
+
+  if(!currentUser) return;
+
+  try{
+
+    const {error} = await supabase
+      .from("sportcoins_coin_transactions")
+      .insert({
+
+        user_id:currentUser.id,
+        amount,
+        reason
+
+      });
+
+    if(error) throw error;
+
+  }catch(error){
+
+    console.error("Transaction:",error);
+
+  }
+
+}
 
 
 /* =========================================================
-   EXERCISES UI
+   ACTIVIDAD
+========================================================= */
+
+async function registerActivity(
+  exerciseId,
+  amount,
+  source="manual"
+){
+
+  const ex = EXERCISES[exerciseId];
+
+  if(!ex) return;
+
+  amount = Number(amount);
+
+  if(!amount || amount <= 0) return;
+
+  let coins;
+  let xp;
+
+  if(ex.unit === "min"){
+
+    coins = Math.round(amount * ex.coins);
+    xp = Math.round(amount * ex.xp);
+
+  }else{
+
+    coins = Math.round(amount * ex.coins);
+    xp = Math.round(amount * ex.xp);
+
+  }
+
+  const minutes =
+    ex.unit === "min"
+      ? amount
+      : amount * (ex.secPerRep || 0) / 60;
+
+  const calories =
+    estimateCalories(exerciseId,amount);
+
+  state.coins += coins;
+  state.xp += xp;
+
+  state.level = calculateLevel();
+
+  state.exercisesCompleted++;
+
+  if(ex.unit === "min"){
+
+    state.activeMinutes += minutes;
+
+  }else{
+
+    state.repetitions += Math.round(amount);
+    state.activeMinutes += minutes;
+
+  }
+
+  state.caloriesBurnedTotal += calories;
+
+  state.todayCoins += coins;
+  state.todayXP += xp;
+
+  if(
+    !state.lastWorkoutDate ||
+    state.lastWorkoutDate !== today()
+  ){
+
+    updateStreak();
+
+  }
+
+  state.lastWorkoutDate = today();
+
+  state.personalRecord =
+    Math.max(
+      state.personalRecord,
+      Math.round(amount)
+    );
+
+  state.activityLog.unshift({
+
+    date:today(),
+    exerciseId,
+    exercise:ex.name,
+    amount,
+    coins,
+    xp,
+    minutes,
+    calories,
+    source
+
+  });
+
+  state.activityLog =
+    state.activityLog.slice(0,300);
+
+  state.level = calculateLevel();
+
+  await saveCloudState();
+
+  await insertActivity(
+    exerciseId,
+    amount,
+    coins,
+    xp,
+    minutes,
+    calories
+  );
+
+  await insertTransaction(
+    coins,
+    `${ex.name}: ${amount}`
+  );
+
+  renderAll();
+
+  showToast(
+    `+${coins} 🪙 y +${xp} XP`
+  );
+
+}
+
+
+function updateStreak(){
+
+  const yesterdayDate =
+    new Date();
+
+  yesterdayDate.setDate(
+    yesterdayDate.getDate()-1
+  );
+
+  const yesterday =
+    yesterdayDate
+      .toISOString()
+      .slice(0,10);
+
+  if(state.lastWorkoutDate === yesterday){
+
+    state.streak++;
+
+  }else if(state.lastWorkoutDate !== today()){
+
+    state.streak = 1;
+
+  }
+
+}
+
+
+/* =========================================================
+   RENDER HOME
+========================================================= */
+
+function renderHome(){
+
+  document.getElementById("homeName")
+    .textContent =
+      state.profile.name ||
+      "Sporter";
+
+  document.getElementById("homeCoins")
+    .textContent =
+      Math.floor(state.coins);
+
+  document.getElementById("homeXP")
+    .textContent =
+      Math.floor(state.xp);
+
+  document.getElementById("homeLevel")
+    .textContent =
+      `${state.level} · ${levelName(state.level)}`;
+
+  document.getElementById("homeStreak")
+    .textContent =
+      state.streak;
+
+  document.getElementById("homeExercises")
+    .textContent =
+      state.exercisesCompleted;
+
+  document.getElementById("homeReps")
+    .textContent =
+      state.repetitions;
+
+  document.getElementById("homeMinutes")
+    .textContent =
+      Math.round(state.activeMinutes);
+
+  document.getElementById("homeCalories")
+    .textContent =
+      Math.round(state.caloriesBurnedTotal);
+
+  const currentLevel =
+    state.level;
+
+  const levels = [
+    0,100,300,600,1000,1500,2200,3000
+  ];
+
+  const currentMin =
+    levels[currentLevel-1] || 0;
+
+  const next =
+    levels[currentLevel] ||
+    currentMin+1000;
+
+  const progress =
+    Math.max(
+      0,
+      Math.min(
+        100,
+        ((state.xp-currentMin) /
+        (next-currentMin))*100
+      )
+    );
+
+  document.getElementById("levelProgress")
+    .style.width =
+      progress+"%";
+
+  document.getElementById("levelText")
+    .textContent =
+      `Nivel ${currentLevel}: ${levelName(currentLevel)} · ${state.xp} XP`;
+
+}
+
+
+/* =========================================================
+   RENDER EJERCICIOS
 ========================================================= */
 
 function renderExercises(){
 
   const grid =
-    document.getElementById(
-      "exerciseGrid"
-    );
+    document.getElementById("exerciseGrid");
 
   grid.innerHTML = "";
 
-  Object.entries(
-    exercises
-  ).forEach(
-    ([id,exercise]) => {
+  for(const [id,ex] of Object.entries(EXERCISES)){
 
-      const card =
-        document.createElement(
-          "div"
-        );
+    const card =
+      document.createElement("div");
 
-      card.className =
-        "exercise-card";
+    card.className="exerciseCard";
 
-      card.innerHTML = `
+    card.innerHTML = `
 
-        <h3>${exercise.name}</h3>
+      <div class="exerciseIcon">
+        ${ex.icon}
+      </div>
 
-        <p>
-          🪙 ${exercise.coins} coins
-          · ⚡ ${exercise.xp} XP
-        </p>
+      <h3>${escapeHTML(ex.name)}</h3>
 
-        <button class="btn primary">
-          Registrar
-        </button>
-      `;
+      <div class="small">
+        ${ex.unit === "min"
+          ? `${ex.coins} 🪙 / min`
+          : `${ex.coins} 🪙 / repetición`}
+      </div>
 
-      card.querySelector(
-        "button"
-      ).onclick = () => {
+      <div class="small">
+        ${ex.xp} XP
+      </div>
 
-        openManualExercise(
-          id
-        );
-      };
-
-      grid.appendChild(card);
-
-    }
-  );
-}
-
-
-function openManualExercise(id){
-
-  const exercise =
-    exercises[id];
-
-  document.getElementById(
-    "modalContent"
-  ).innerHTML = `
-
-    <h2>${exercise.name}</h2>
-
-    <p class="small">
-      Registra únicamente las repeticiones
-      o minutos que realmente completaste.
-    </p>
-
-    <br>
-
-    <input
-      id="manualAmount"
-      type="number"
-      min="1"
-      placeholder="${
-        exercise.unit === "min"
-          ? "Minutos"
-          : "Repeticiones"
-      }"
-    >
-
-    <br><br>
-
-    <button
-      class="btn primary"
-      id="confirmManual"
-    >
-      Registrar
-    </button>
-  `;
-
-  openModal();
-
-  document.getElementById(
-    "confirmManual"
-  ).onclick = async () => {
-
-    const amount =
-      Number(
-        document.getElementById(
-          "manualAmount"
-        ).value
-      );
-
-    if(!amount){
-      return;
-    }
-
-    await registerActivity(
-      id,
-      amount
-    );
-
-    closeModal();
-  };
-}
-
-
-/* =========================================================
-   ROUTINES UI
-========================================================= */
-
-function renderRoutines(){
-
-  const grid =
-    document.getElementById(
-      "routineGrid"
-    );
-
-  grid.innerHTML = "";
-
-  Object.entries(
-    routines
-  ).forEach(
-    ([id,routine]) => {
-
-      const card =
-        document.createElement(
-          "div"
-        );
-
-      card.className =
-        "routine-card";
-
-      const list =
-        Object.entries(
-          routine.exercises
-        )
-        .map(
-          ([exerciseId,amount]) =>
-            `${exercises[exerciseId].name}: ${amount}${exercises[exerciseId].unit === "min" ? " min" : ""}`
-        )
-        .join("<br>");
-
-      card.innerHTML = `
-
-        <h3>${routine.name}</h3>
-
-        <p>${list}</p>
-
-        <button class="btn primary">
-          Ver rutina
-        </button>
-      `;
-
-      card.querySelector(
-        "button"
-      ).onclick = () => {
-
-        openRoutine(id);
-
-      };
-
-      grid.appendChild(card);
-
-    }
-  );
-}
-
-
-function openRoutine(id){
-
-  const routine =
-    routines[id];
-
-  let html = `
-    <h2>${routine.name}</h2>
-    <p class="small">
-      Completa cada ejercicio.
-    </p>
-    <br>
-  `;
-
-  Object.entries(
-    routine.exercises
-  ).forEach(
-    ([exerciseId,amount]) => {
-
-      const exercise =
-        exercises[exerciseId];
-
-      html += `
-
-        <div class="card">
-
-          <strong>
-            ${exercise.name}
-          </strong>
-
-          <p class="small">
-            Objetivo:
-            ${amount}
-            ${exercise.unit === "min" ? "min" : "reps"}
-          </p>
-
-          <button
-            class="btn primary"
-            onclick="manualRoutineExercise('${exerciseId}',${amount})"
-          >
-            Registrar
-          </button>
-
-        </div>
-
-        <br>
-      `;
-    }
-  );
-
-  document.getElementById(
-    "modalContent"
-  ).innerHTML = html;
-
-  openModal();
-}
-
-
-window.manualRoutineExercise =
-async function(id,amount){
-
-  await registerActivity(
-    id,
-    amount
-  );
-
-};
-
-
-/* =========================================================
-   GAMES
-========================================================= */
-
-function renderGames(){
-
-  const grid =
-    document.getElementById(
-      "gameGrid"
-    );
-
-  grid.innerHTML = "";
-
-  Object.entries(
-    games
-  ).forEach(
-    ([id,game]) => {
-
-      const card =
-        document.createElement(
-          "div"
-        );
-
-      card.className =
-        "game-card";
-
-      card.innerHTML = `
-
-        <h3>
-          ${game.icon}
-          ${game.name}
-        </h3>
-
-        <p>
-          Objetivo: ${game.goal}
-          · ${game.seconds}s
-        </p>
-
-        <p>
-          Recompensa:
-          🪙 ${game.reward}
-        </p>
-
-        <button class="btn primary">
-          Jugar
-        </button>
-      `;
-
-      card.querySelector(
-        "button"
-      ).onclick = () => {
-
-        startGame(id);
-
-      };
-
-      grid.appendChild(card);
-
-    }
-  );
-}
-
-
-function startGame(id){
-
-  const game =
-    games[id];
-
-  document.getElementById(
-    "modalContent"
-  ).innerHTML = `
-
-    <h2>
-      ${game.icon}
-      ${game.name}
-    </h2>
-
-    <p>
-      Completa:
-      <strong>${game.goal}</strong>
-    </p>
-
-    <p class="small">
-      Tiempo:
-      ${game.seconds} segundos
-    </p>
-
-    <br>
-
-    <button
-      class="btn primary"
-      id="gameStart"
-    >
-      Empezar
-    </button>
-
-    <div id="gameArea"></div>
-  `;
-
-  openModal();
-
-  document.getElementById(
-    "gameStart"
-  ).onclick = () => {
-
-    const area =
-      document.getElementById(
-        "gameArea"
-      );
-
-    let seconds =
-      game.seconds;
-
-    let reps = 0;
-
-    area.innerHTML = `
-
-      <br>
-
-      <div class="card">
-
-        <h2 id="gameTimer">
-          ${seconds}s
-        </h2>
-
-        <h2 id="gameReps">
-          0 / ${game.goal}
-        </h2>
+      <div class="cardActions">
 
         <button
-          class="btn primary"
-          id="gameRep"
-        >
-          💪 Registrar repetición
+          class="primaryBtn"
+          data-exercise="${id}">
+          Registrar
         </button>
 
       </div>
     `;
 
-    const timer =
-      setInterval(
-        async () => {
+    grid.appendChild(card);
 
-          seconds--;
+  }
 
-          document.getElementById(
-            "gameTimer"
-          ).textContent =
-            `${seconds}s`;
+  grid
+    .querySelectorAll("[data-exercise]")
+    .forEach(button=>{
 
-          if(seconds <= 0){
+      button.addEventListener(
+        "click",
+        async()=>{
 
-            clearInterval(timer);
+          const id =
+            button.dataset.exercise;
 
-            if(reps >= game.goal){
+          const ex =
+            EXERCISES[id];
 
-              state.coins +=
-                game.reward;
+          let amount =
+            prompt(
+              ex.unit === "min"
+                ? `¿Cuántos minutos de ${ex.name}?`
+                : `¿Cuántas repeticiones válidas de ${ex.name}?`
+            );
 
-              state.xp +=
-                game.reward;
+          if(amount === null) return;
 
-              updateLevel();
+          amount =
+            Number(amount);
 
-              saveLocal();
+          if(!Number.isFinite(amount) || amount<=0){
 
-              await saveCloud();
+            showToast("Cantidad no válida.");
 
-              saveCoinTransaction(
-                game.reward,
-                `Minijuego: ${game.name}`
-              );
-
-              renderAll();
-
-              toast(
-                `🎉 Ganaste ${game.reward} SportCoins`
-              );
-
-            }else{
-
-              toast(
-                "No alcanzaste el objetivo."
-              );
-            }
+            return;
 
           }
 
-        },
-        1000
+          await registerActivity(
+            id,
+            amount,
+            "manual"
+          );
+
+        }
       );
 
-    document.getElementById(
-      "gameRep"
-    ).onclick = () => {
+    });
 
-      if(reps < game.goal){
-
-        reps++;
-
-        document.getElementById(
-          "gameReps"
-        ).textContent =
-          `${reps} / ${game.goal}`;
-      }
-    };
-
-  };
 }
 
 
 /* =========================================================
-   REWARDS
+   RUTINAS
+========================================================= */
+
+function renderRoutines(){
+
+  const grid =
+    document.getElementById("routineGrid");
+
+  grid.innerHTML="";
+
+  for(const [id,routine] of Object.entries(ROUTINES)){
+
+    const card =
+      document.createElement("div");
+
+    card.className="routineCard";
+
+    const list =
+      routine.exercises
+        .map(([exercise,amount])=>
+          `<li>
+            ${EXERCISES[exercise]?.name || exercise}
+            × ${amount}
+          </li>`
+        )
+        .join("");
+
+    card.innerHTML=`
+
+      <h3>${routine.name}</h3>
+
+      <ul>
+        ${list}
+      </ul>
+
+      <button
+        class="primaryBtn full"
+        data-routine="${id}">
+        Completar manualmente
+      </button>
+
+    `;
+
+    grid.appendChild(card);
+
+  }
+
+  grid
+    .querySelectorAll("[data-routine]")
+    .forEach(button=>{
+
+      button.addEventListener(
+        "click",
+        async()=>{
+
+          const routine =
+            ROUTINES[button.dataset.routine];
+
+          for(
+            const [exercise,amount]
+            of routine.exercises
+          ){
+
+            await registerActivity(
+              exercise,
+              amount,
+              "routine"
+            );
+
+          }
+
+          showToast(
+            `Rutina ${routine.name} completada.`
+          );
+
+        }
+      );
+
+    });
+
+}
+
+
+/* =========================================================
+   MINIJUEGOS
+========================================================= */
+
+function renderGames(){
+
+  const grid =
+    document.getElementById("gameGrid");
+
+  grid.innerHTML="";
+
+  for(const game of GAMES){
+
+    const card =
+      document.createElement("div");
+
+    card.className="gameCard";
+
+    card.innerHTML=`
+
+      <div class="exerciseIcon">
+        ${game.icon}
+      </div>
+
+      <h3>${game.name}</h3>
+
+      <p class="small">
+        Meta: ${game.goal}
+      </p>
+
+      <p class="small">
+        Tiempo: ${game.time}s
+      </p>
+
+      <p>
+        Recompensa:
+        <strong class="coin">
+          ${game.reward} 🪙
+        </strong>
+      </p>
+
+      <button
+        class="primaryBtn full"
+        data-game="${game.name}">
+        Iniciar
+      </button>
+
+    `;
+
+    grid.appendChild(card);
+
+  }
+
+  grid
+    .querySelectorAll("[data-game]")
+    .forEach(button=>{
+
+      button.addEventListener(
+        "click",
+        ()=>{
+
+          const game =
+            GAMES.find(
+              g=>g.name === button.dataset.game
+            );
+
+          if(!game) return;
+
+          alert(
+            `${game.name}\n\n` +
+            `Meta: ${game.goal}\n` +
+            `Tiempo: ${game.time} segundos\n\n` +
+            `Usa la cámara para verificar el ejercicio.`
+          );
+
+          navigate("camera");
+
+        }
+      );
+
+    });
+
+}
+
+
+/* =========================================================
+   RECOMPENSAS
 ========================================================= */
 
 function renderRewards(){
 
+  document.getElementById("rewardCoins")
+    .textContent =
+      Math.floor(state.coins);
+
   const grid =
-    document.getElementById(
-      "rewardGrid"
-    );
+    document.getElementById("rewardGrid");
 
-  grid.innerHTML = "";
+  grid.innerHTML="";
 
-  Object.entries(
-    rewards
-  ).forEach(
-    ([id,reward]) => {
+  REWARDS.forEach((reward,index)=>{
 
-      const card =
-        document.createElement(
-          "div"
-        );
+    const card =
+      document.createElement("div");
 
-      card.className =
-        "reward-card";
+    card.className="rewardCard";
 
-      card.innerHTML = `
+    card.innerHTML=`
 
-        <h3>
-          ${reward.icon}
-          ${reward.name}
-        </h3>
+      <div class="exerciseIcon">
+        ${reward.icon}
+      </div>
 
-        <p>
-          🪙 ${reward.price}
-        </p>
+      <h3>${reward.name}</h3>
 
-        <button class="btn primary">
-          Canjear
-        </button>
-      `;
+      <p>
+        <strong class="coin">
+          ${reward.cost} 🪙
+        </strong>
+      </p>
 
-      card.querySelector(
-        "button"
-      ).onclick = () =>
-        redeemReward(id);
+      <button
+        class="primaryBtn full"
+        data-reward="${index}">
+        Canjear
+      </button>
 
-      grid.appendChild(card);
+    `;
 
-    }
-  );
-}
-
-
-async function redeemReward(id){
-
-  const reward =
-    rewards[id];
-
-  if(state.coins < reward.price){
-
-    toast(
-      "No tienes suficientes SportCoins."
-    );
-
-    return;
-  }
-
-  state.coins -=
-    reward.price;
-
-  state.completedRewards.push({
-
-    id,
-
-    name:
-      reward.name,
-
-    price:
-      reward.price,
-
-    date:
-      new Date().toISOString()
+    grid.appendChild(card);
 
   });
 
-  saveLocal();
+  grid
+    .querySelectorAll("[data-reward]")
+    .forEach(button=>{
 
-  await saveCloud();
+      button.addEventListener(
+        "click",
+        async()=>{
 
-  saveCoinTransaction(
-    -reward.price,
-    `Recompensa: ${reward.name}`
-  );
+          const reward =
+            REWARDS[
+              Number(button.dataset.reward)
+            ];
 
-  renderAll();
+          if(state.coins < reward.cost){
 
-  toast(
-    `🎁 Canjeaste ${reward.name}`
-  );
+            showToast("No tienes suficientes SportCoins.");
+
+            return;
+
+          }
+
+          const confirmRedeem =
+            confirm(
+              `¿Canjear "${reward.name}" por ${reward.cost} SportCoins?`
+            );
+
+          if(!confirmRedeem) return;
+
+          state.coins -= reward.cost;
+
+          state.completedRewards.unshift({
+
+            date:today(),
+            name:reward.name,
+            cost:reward.cost
+
+          });
+
+          await saveCloudState();
+
+          await insertTransaction(
+            -reward.cost,
+            `Recompensa: ${reward.name}`
+          );
+
+          renderAll();
+
+          showToast(
+            `Recompensa canjeada: ${reward.name}`
+          );
+
+        }
+      );
+
+    });
+
 }
 
 
@@ -3093,202 +2455,199 @@ async function redeemReward(id){
    FOOD
 ========================================================= */
 
-let foodImageBase64 = "";
+let foodImageBase64 = null;
 
+document
+  .getElementById("foodImage")
+  .addEventListener("change",event=>{
 
-document.getElementById(
-  "foodImage"
-).onchange = event => {
+    const file =
+      event.target.files?.[0];
 
-  const file =
-    event.target.files?.[0];
+    if(!file){
 
-  if(!file){
-    return;
-  }
+      foodImageBase64=null;
 
-  const reader =
-    new FileReader();
+      return;
 
-  reader.onload = () => {
-
-    foodImageBase64 =
-      reader.result;
-
-    const preview =
-      document.getElementById(
-        "foodPreview"
-      );
-
-    preview.src =
-      foodImageBase64;
-
-    preview.style.display =
-      "block";
-  };
-
-  reader.readAsDataURL(file);
-};
-
-
-document.getElementById(
-  "analyzeFood"
-).onclick =
-async () => {
-
-  const text =
-    document.getElementById(
-      "foodText"
-    ).value.trim();
-
-  if(!text && !foodImageBase64){
-
-    toast(
-      "Escribe un alimento o sube una foto."
-    );
-
-    return;
-  }
-
-  const result =
-    document.getElementById(
-      "foodResult"
-    );
-
-  result.innerHTML =
-    "🤖 Analizando...";
-
-  try{
-
-    const response =
-      await fetch(
-
-        `${SPORTCOINS_CONFIG.supabase.url}/functions/v1/${SPORTCOINS_CONFIG.edgeFunctions.gemini}`,
-
-        {
-
-          method:"POST",
-
-          headers:{
-            "Content-Type":
-              "application/json",
-
-            "apikey":
-              SPORTCOINS_CONFIG.supabase.publishableKey
-          },
-
-          body:JSON.stringify({
-
-            text,
-
-            image:
-              foodImageBase64
-
-          })
-
-        }
-      );
-
-    if(!response.ok){
-      throw new Error(
-        "Error de Edge Function"
-      );
     }
 
-    const data =
-      await response.json();
+    const reader =
+      new FileReader();
 
-    const entry = {
+    reader.onload=()=>{
 
-      date:
-        new Date().toISOString(),
-
-      text,
-
-      image:
-        foodImageBase64,
-
-      analysis:
-        data
+      foodImageBase64 =
+        reader.result;
 
     };
 
-    state.foodHistory.unshift(
-      entry
-    );
+    reader.readAsDataURL(file);
 
-    if(state.foodHistory.length > 100){
+  });
 
-      state.foodHistory =
-        state.foodHistory.slice(
-          0,
-          100
-        );
+
+document
+  .getElementById("analyzeFood")
+  .addEventListener("click",async()=>{
+
+    const text =
+      document
+        .getElementById("foodText")
+        .value
+        .trim();
+
+    const result =
+      document.getElementById("foodResult");
+
+    if(!text && !foodImageBase64){
+
+      result.innerHTML=
+        `<p class="muted">
+          Escribe el alimento o agrega una foto.
+        </p>`;
+
+      return;
+
     }
 
-    saveLocal();
+    result.innerHTML=
+      `<p class="muted">🤖 Analizando...</p>`;
 
-    await saveCloud();
+    try{
 
-    renderFood();
+      const response =
+        await fetch(
 
-    result.innerHTML = `
-      <div class="card">
-        <h3>Resultado</h3>
-        <pre style="white-space:pre-wrap;color:#cbd5f5">${escapeHTML(JSON.stringify(data,null,2))}</pre>
-      </div>
-    `;
+          `${SPORTCOINS_CONFIG.supabase.url}/functions/v1/${SPORTCOINS_CONFIG.edgeFunctions.gemini}`,
 
-  }catch(error){
+          {
 
-    console.error(error);
+            method:"POST",
 
-    result.innerHTML =
-      "No se pudo analizar el alimento.";
+            headers:{
+              "Content-Type":"application/json",
+              "apikey":
+                SPORTCOINS_CONFIG.supabase.publishableKey,
+              "Authorization":
+                `Bearer ${SPORTCOINS_CONFIG.supabase.publishableKey}`
+            },
 
-    toast(
-      "Error al conectar con Gemini."
-    );
-  }
-};
+            body:JSON.stringify({
+
+              text,
+
+              image:foodImageBase64
+
+            })
+
+          }
+
+        );
+
+      const data =
+        await response.json();
+
+      if(!response.ok){
+
+        throw new Error(
+          data?.error ||
+          "La función no respondió correctamente."
+        );
+
+      }
+
+      state.foodHistory.unshift({
+
+        date:new Date().toISOString(),
+
+        text,
+
+        image:foodImageBase64,
+
+        result:data
+
+      });
+
+      state.foodHistory =
+        state.foodHistory.slice(0,100);
+
+      await saveCloudState();
+
+      result.innerHTML=`
+
+        <div class="card">
+
+          <h3>Resultado</h3>
+
+          <pre style="white-space:pre-wrap">
+${escapeHTML(
+  typeof data === "string"
+    ? data
+    : JSON.stringify(data,null,2)
+)}
+          </pre>
+
+        </div>
+
+      `;
+
+      renderFoodHistory();
+
+    }catch(error){
+
+      console.error(error);
+
+      result.innerHTML=
+        `<p style="color:#ff7183">
+          No se pudo analizar el alimento:
+          ${escapeHTML(error.message)}
+        </p>`;
+
+    }
+
+  });
 
 
-function renderFood(){
+function renderFoodHistory(){
 
-  const history =
-    document.getElementById(
-      "foodHistory"
-    );
+  const box =
+    document.getElementById("foodHistory");
 
   if(!state.foodHistory.length){
 
-    history.innerHTML =
-      `<p class="small">No hay registros.</p>`;
+    box.innerHTML=
+      `<p class="muted">
+        Todavía no hay registros.
+      </p>`;
 
     return;
+
   }
 
-  history.innerHTML =
+  box.innerHTML =
     state.foodHistory
       .slice(0,20)
-      .map(
-        item => `
+      .map(item=>`
 
-          <div class="card" style="margin-bottom:8px">
+        <div style="
+          padding:12px 0;
+          border-bottom:1px solid var(--border);
+        ">
 
-            <strong>
-              ${escapeHTML(item.text || "Alimento")}
-            </strong>
+          <strong>
+            ${escapeHTML(item.text || "Alimento")}
+          </strong>
 
-            <p class="small">
-              ${new Date(item.date).toLocaleString()}
-            </p>
-
+          <div class="small">
+            ${new Date(item.date).toLocaleString()}
           </div>
 
-        `
-      )
+        </div>
+
+      `)
       .join("");
+
 }
 
 
@@ -3296,107 +2655,94 @@ function renderFood(){
    AUSENCIAS
 ========================================================= */
 
-document.getElementById(
-  "addAbsence"
-).onclick = async () => {
+document
+  .getElementById("requestAbsence")
+  .addEventListener("click",async()=>{
 
-  const date =
-    document.getElementById(
-      "absenceDate"
-    ).value;
+    const date =
+      document.getElementById("absenceDate")
+        .value;
 
-  const reason =
-    document.getElementById(
-      "absenceReason"
-    ).value;
+    const reason =
+      document.getElementById("absenceReason")
+        .value;
 
-  const details =
-    document.getElementById(
-      "absenceDetails"
-    ).value.trim();
+    if(!date){
 
-  if(!date){
-    toast(
-      "Selecciona una fecha."
+      showToast("Selecciona una fecha.");
+
+      return;
+
+    }
+
+    state.absences.unshift({
+
+      date,
+
+      reason,
+
+      status:"pendiente",
+
+      createdAt:new Date().toISOString()
+
+    });
+
+    await saveCloudState();
+
+    renderAbsences();
+
+    showToast(
+      "Solicitud registrada."
     );
-    return;
-  }
-
-  state.absences.unshift({
-
-    date,
-
-    reason,
-
-    details,
-
-    approved:false,
-
-    createdAt:
-      new Date().toISOString()
 
   });
-
-  saveLocal();
-
-  await saveCloud();
-
-  renderAbsences();
-
-  toast(
-    "Ausencia registrada."
-  );
-};
 
 
 function renderAbsences(){
 
   const box =
-    document.getElementById(
-      "absenceHistory"
-    );
+    document.getElementById("absenceList");
 
   if(!state.absences.length){
 
-    box.innerHTML =
-      `<p class="small">No hay ausencias.</p>`;
+    box.innerHTML=
+      `<p class="muted">
+        No tienes solicitudes.
+      </p>`;
 
     return;
+
   }
 
   box.innerHTML =
     state.absences
-      .map(
-        absence => `
+      .map(item=>`
 
-          <div class="card" style="margin-bottom:8px">
+        <div style="
+          padding:12px 0;
+          border-bottom:1px solid var(--border);
+        ">
 
-            <strong>
-              ${escapeHTML(absence.date)}
-            </strong>
+          <strong>
+            ${escapeHTML(item.date)}
+          </strong>
 
-            <p class="small">
-              ${escapeHTML(absence.reason)}
-            </p>
-
-            <p>
-              ${escapeHTML(absence.details || "")}
-            </p>
-
-            <p class="small">
-              Estado:
-              ${
-                absence.approved
-                  ? "✅ Aprobada"
-                  : "⏳ Pendiente"
-              }
-            </p>
-
+          <div class="small">
+            ${escapeHTML(item.reason)}
           </div>
 
-        `
-      )
+          <div>
+            Estado:
+            <strong>
+              ${escapeHTML(item.status)}
+            </strong>
+          </div>
+
+        </div>
+
+      `)
       .join("");
+
 }
 
 
@@ -3406,582 +2752,296 @@ function renderAbsences(){
 
 function renderStats(){
 
+  document.getElementById("statExercises")
+    .textContent =
+      state.exercisesCompleted;
+
+  document.getElementById("statReps")
+    .textContent =
+      state.repetitions;
+
+  document.getElementById("statMinutes")
+    .textContent =
+      Math.round(state.activeMinutes);
+
+  document.getElementById("statCalories")
+    .textContent =
+      Math.round(state.caloriesBurnedTotal);
+
+  document.getElementById("personalRecord")
+    .textContent =
+      `${state.personalRecord} repeticiones`;
+
   const now =
     new Date();
-
-  const month =
-    now.getMonth();
 
   const year =
     now.getFullYear();
 
-  const activities =
-    state.activityLog.filter(
-      activity => {
+  const month =
+    now.getMonth();
 
-        const date =
-          new Date(
-            activity.date +
-            "T00:00:00"
-          );
+  const monthly =
+    state.activityLog.filter(item=>{
 
-        return(
-          date.getMonth() === month &&
-          date.getFullYear() === year
-        );
+      const d =
+        new Date(item.date);
 
-      }
+      return(
+        d.getFullYear()===year &&
+        d.getMonth()===month
+      );
+
+    });
+
+  const exercises =
+    monthly.length;
+
+  const reps =
+    monthly.reduce(
+      (sum,item)=>
+        sum + Number(item.amount || 0),
+      0
     );
 
-  const total = {
-
-    exercises:
-      activities.length,
-
-    reps:
-      activities.reduce(
-        (sum,a) =>
-          sum + Number(a.repetitions || 0),
-        0
-      ),
-
-    minutes:
-      activities.reduce(
-        (sum,a) =>
-          sum + Number(a.activeMinutes || 0),
-        0
-      ),
-
-    calories:
-      activities.reduce(
-        (sum,a) =>
-          sum + Number(a.calories || 0),
-        0
-      ),
-
-    coins:
-      activities.reduce(
-        (sum,a) =>
-          sum + Number(a.coins || 0),
-        0
-      ),
-
-    xp:
-      activities.reduce(
-        (sum,a) =>
-          sum + Number(a.xp || 0),
-        0
-      )
-
-  };
-
-  document.getElementById(
-    "monthExercises"
-  ).textContent =
-    total.exercises;
-
-  document.getElementById(
-    "monthReps"
-  ).textContent =
-    total.reps;
-
-  document.getElementById(
-    "monthMinutes"
-  ).textContent =
-    Math.round(
-      total.minutes
+  const minutes =
+    monthly.reduce(
+      (sum,item)=>
+        sum + Number(item.minutes || 0),
+      0
     );
 
-  document.getElementById(
-    "monthCalories"
-  ).textContent =
-    Math.round(
-      total.calories
+  const calories =
+    monthly.reduce(
+      (sum,item)=>
+        sum + Number(item.calories || 0),
+      0
     );
 
-  document.getElementById(
-    "monthCoins"
-  ).textContent =
-    total.coins;
-
-  document.getElementById(
-    "monthXP"
-  ).textContent =
-    total.xp;
-
-  const table =
-    document.getElementById(
-      "activityTable"
+  const coins =
+    monthly.reduce(
+      (sum,item)=>
+        sum + Number(item.coins || 0),
+      0
     );
 
-  table.innerHTML =
-    activities
-      .slice(0,50)
-      .map(
-        activity => `
+  const xp =
+    monthly.reduce(
+      (sum,item)=>
+        sum + Number(item.xp || 0),
+      0
+    );
 
-          <tr>
+  document.getElementById("monthlyStats")
+    .innerHTML=`
 
-            <td>${activity.date}</td>
+      <div class="grid">
 
-            <td>
-              ${escapeHTML(activity.exerciseName)}
-            </td>
+        <div>
+          <strong>${exercises}</strong>
+          <div class="small">Sesiones</div>
+        </div>
 
-            <td>
-              ${activity.repetitions || 0}
-            </td>
+        <div>
+          <strong>${Math.round(reps)}</strong>
+          <div class="small">Repeticiones</div>
+        </div>
 
-            <td>
-              ${Number(activity.activeMinutes || 0).toFixed(1)}
-            </td>
+        <div>
+          <strong>${Math.round(minutes)}</strong>
+          <div class="small">Minutos activos</div>
+        </div>
 
-            <td>
-              🪙 ${activity.coins || 0}
-            </td>
+        <div>
+          <strong>${Math.round(calories)}</strong>
+          <div class="small">
+            Calorías estimadas
+          </div>
+        </div>
 
-            <td>
-              ⚡ ${activity.xp || 0}
-            </td>
+      </div>
 
-            <td>
-              🔥 ${Number(activity.calories || 0).toFixed(1)}
-            </td>
+      <br>
 
-          </tr>
-        `
-      )
-      .join("");
+      <p>
+        🪙 ${Math.round(coins)} SportCoins
+      </p>
+
+      <p>
+        ⭐ ${Math.round(xp)} XP
+      </p>
+
+      <p class="small">
+        Las calorías son una estimación basada en actividad,
+        tiempo, MET y, cuando está disponible, el peso introducido.
+        No representan un objetivo de peso ni un déficit calórico.
+      </p>
+
+    `;
+
 }
 
 
 /* =========================================================
-   MODAL
+   PERFIL
 ========================================================= */
 
-function openModal(){
+function renderProfile(){
 
-  document.getElementById(
-    "modal"
-  ).classList.add("open");
+  document.getElementById("profileName")
+    .value =
+      state.profile.name || "";
+
+  document.getElementById("profileAge")
+    .value =
+      state.profile.age || "";
+
+  document.getElementById("profileHeight")
+    .value =
+      state.profile.height || "";
+
+  document.getElementById("profileWeight")
+    .value =
+      state.profile.weight || "";
+
+  document.getElementById("accountEmail")
+    .textContent =
+      currentUser?.email || "";
+
 }
 
 
-window.closeModal =
-function(){
+document
+  .getElementById("saveProfile")
+  .addEventListener("click",async()=>{
 
-  document.getElementById(
-    "modal"
-  ).classList.remove("open");
-};
+    state.profile.name =
+      document.getElementById("profileName").value.trim();
+
+    state.profile.age =
+      document.getElementById("profileAge").value;
+
+    state.profile.height =
+      document.getElementById("profileHeight").value;
+
+    state.profile.weight =
+      document.getElementById("profileWeight").value;
+
+    await saveCloudState();
+
+    renderAll();
+
+    showToast("Perfil guardado.");
+
+  });
 
 
 /* =========================================================
-   CAMERA / MEDIAPIPE
+   NAVEGACIÓN
 ========================================================= */
 
-let videoStream = null;
-let poseLandmarker = null;
-let cameraRunning = false;
+function navigate(page){
 
-let cameraExercise =
-  "squat";
-
-let cameraReps = 0;
-let cameraState = "up";
-
-let lastFrameTime = 0;
-
-
-const video =
-  document.getElementById(
-    "video"
-  );
-
-const canvas =
-  document.getElementById(
-    "poseCanvas"
-  );
-
-const ctx =
-  canvas.getContext("2d");
-
-
-async function createPoseLandmarker(){
-
-  if(poseLandmarker){
-    return;
-  }
-
-  const {
-    FilesetResolver,
-    PoseLandmarker
-  } = window.MediaPipeVision;
-
-  const vision =
-    await FilesetResolver.forVisionTasks(
-
-      "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/wasm"
-
+  document
+    .querySelectorAll(".page")
+    .forEach(p=>
+      p.classList.remove("active")
     );
 
-  poseLandmarker =
-    await PoseLandmarker.createFromOptions(
+  document
+    .getElementById(`page-${page}`)
+    ?.classList.add("active");
 
-      vision,
-
-      {
-
-        baseOptions:{
-
-          modelAssetPath:
-
-            "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task"
-
-        },
-
-        runningMode:"VIDEO",
-
-        numPoses:1
-
-      }
-
+  document
+    .querySelectorAll(".navBtn")
+    .forEach(btn=>
+      btn.classList.toggle(
+        "active",
+        btn.dataset.page === page
+      )
     );
+
+  document
+    .getElementById("sidebar")
+    .classList.remove("open");
 
 }
 
+document
+  .querySelectorAll(".navBtn")
+  .forEach(button=>{
 
-document.getElementById(
-  "startCamera"
-).onclick =
-async () => {
+    button.addEventListener(
+      "click",
+      ()=>navigate(button.dataset.page)
+    );
+
+  });
+
+
+document
+  .getElementById("mobileMenu")
+  .addEventListener(
+    "click",
+    ()=>{
+
+      document
+        .getElementById("sidebar")
+        .classList.toggle("open");
+
+    }
+  );
+
+
+/* =========================================================
+   MEDIAPIPE
+========================================================= */
+
+async function loadMediaPipe(){
+
+  if(poseLandmarker) return;
 
   try{
 
-    await createPoseLandmarker();
+    const vision =
+      await import(
+        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/+esm"
+      );
 
-    videoStream =
-      await navigator.mediaDevices.getUserMedia({
+    const {
+      FilesetResolver,
+      PoseLandmarker
+    } = vision;
 
-        video:{
-          facingMode:"user",
-          width:{
-            ideal:1280
+    const fileset =
+      await FilesetResolver.forVisionTasks(
+        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/wasm"
+      );
+
+    poseLandmarker =
+      await PoseLandmarker.createFromOptions(
+        fileset,
+        {
+
+          baseOptions:{
+            modelAssetPath:
+              "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task"
           },
-          height:{
-            ideal:720
-          }
-        },
 
-        audio:false
+          runningMode:"VIDEO",
 
-      });
+          numPoses:1
 
-    video.srcObject =
-      videoStream;
-
-    cameraRunning =
-      true;
-
-    cameraReps =
-      0;
-
-    cameraState =
-      "up";
-
-    requestAnimationFrame(
-      processCamera
-    );
-
-    toast(
-      "Cámara iniciada."
-    );
+        }
+      );
 
   }catch(error){
 
-    console.error(error);
-
-    toast(
-      "No se pudo iniciar la cámara."
-    );
-  }
-};
-
-
-document.getElementById(
-  "stopCamera"
-).onclick =
-stopCamera;
-
-
-function stopCamera(){
-
-  cameraRunning =
-    false;
-
-  if(videoStream){
-
-    videoStream
-      .getTracks()
-      .forEach(
-        track =>
-          track.stop()
-      );
-
-    videoStream =
-      null;
-  }
-
-  video.srcObject =
-    null;
-
-  ctx.clearRect(
-    0,
-    0,
-    canvas.width,
-    canvas.height
-  );
-}
-
-
-document.getElementById(
-  "cameraExercise"
-).onchange =
-event => {
-
-  cameraExercise =
-    event.target.value;
-
-  cameraReps =
-    0;
-
-  cameraState =
-    "up";
-
-  updateCameraUI();
-};
-
-
-function processCamera(){
-
-  if(!cameraRunning){
-    return;
-  }
-
-  if(
-    video.readyState >=
-    HTMLMediaElement.HAVE_CURRENT_DATA
-  ){
-
-    const now =
-      performance.now();
-
-    if(
-      now - lastFrameTime > 50
-    ){
-
-      lastFrameTime =
-        now;
-
-      const result =
-        poseLandmarker.detectForVideo(
-          video,
-          now
-        );
-
-      drawPose(
-        result
-      );
-
-      detectExercise(
-        result
-      );
-    }
-
-  }
-
-  requestAnimationFrame(
-    processCamera
-  );
-}
-
-
-function drawPose(result){
-
-  if(
-    !result?.landmarks?.length
-  ){
-    return;
-  }
-
-  canvas.width =
-    video.videoWidth;
-
-  canvas.height =
-    video.videoHeight;
-
-  ctx.clearRect(
-    0,
-    0,
-    canvas.width,
-    canvas.height
-  );
-
-  const landmarks =
-    result.landmarks[0];
-
-  ctx.fillStyle =
-    "#5b8cff";
-
-  for(
-    const point of landmarks
-  ){
-
-    const x =
-      point.x *
-      canvas.width;
-
-    const y =
-      point.y *
-      canvas.height;
-
-    ctx.beginPath();
-
-    ctx.arc(
-      x,
-      y,
-      4,
-      0,
-      Math.PI*2
-    );
-
-    ctx.fill();
-  }
-
-}
-
-
-function detectExercise(result){
-
-  if(
-    !result?.landmarks?.length
-  ){
-    return;
-  }
-
-  const p =
-    result.landmarks[0];
-
-  if(cameraExercise === "squat"){
-
-    const left =
-      angle(
-        p[23],
-        p[25],
-        p[27]
-      );
-
-    const right =
-      angle(
-        p[24],
-        p[26],
-        p[28]
-      );
-
-    const knee =
-      (left + right) / 2;
-
-    if(knee > 160){
-
-      cameraState =
-        "up";
-
-    }
-
-    if(
-      knee < 105 &&
-      cameraState === "up"
-    ){
-
-      cameraReps++;
-
-      cameraState =
-        "down";
-
-      updateCameraUI();
-    }
-
-  }
-
-
-  if(cameraExercise === "pushup"){
-
-    const left =
-      angle(
-        p[11],
-        p[13],
-        p[15]
-      );
-
-    const right =
-      angle(
-        p[12],
-        p[14],
-        p[16]
-      );
-
-    const elbow =
-      (left + right) / 2;
-
-    if(elbow > 155){
-
-      cameraState =
-        "up";
-
-    }
-
-    if(
-      elbow < 90 &&
-      cameraState === "up"
-    ){
-
-      cameraReps++;
-
-      cameraState =
-        "down";
-
-      updateCameraUI();
-    }
-
-  }
-
-
-  if(cameraExercise === "abs"){
-
-    const left =
-      torsoAngle(
-        p[11],
-        p[23]
-      );
-
-    if(left > 125){
-
-      cameraState =
-        "down";
-    }
-
-    if(
-      left < 70 &&
-      cameraState === "down"
-    ){
-
-      cameraReps++;
-
-      cameraState =
-        "up";
-
-      updateCameraUI();
-    }
+    console.error("MediaPipe:",error);
+
+    document.getElementById("cameraStatus")
+      .textContent =
+        "No se pudo cargar MediaPipe.";
 
   }
 
@@ -3990,226 +3050,756 @@ function detectExercise(result){
 
 function angle(a,b,c){
 
-  const ab = {
-    x:a.x-b.x,
-    y:a.y-b.y
-  };
+  const abx=a.x-b.x;
+  const aby=a.y-b.y;
 
-  const cb = {
-    x:c.x-b.x,
-    y:c.y-b.y
-  };
+  const cbx=c.x-b.x;
+  const cby=c.y-b.y;
 
-  const dot =
-    ab.x*cb.x +
-    ab.y*cb.y;
+  const dot=
+    abx*cbx + aby*cby;
 
-  const mag =
-    Math.sqrt(
-      ab.x**2 +
-      ab.y**2
-    ) *
-    Math.sqrt(
-      cb.x**2 +
-      cb.y**2
-    );
+  const mag1=
+    Math.hypot(abx,aby);
 
-  if(!mag){
-    return 180;
+  const mag2=
+    Math.hypot(cbx,cby);
+
+  if(!mag1 || !mag2) return 180;
+
+  let value=
+    dot/(mag1*mag2);
+
+  value=
+    Math.max(-1,Math.min(1,value));
+
+  return Math.acos(value)*180/Math.PI;
+
+}
+
+
+function detectSquat(landmarks){
+
+  const hip=landmarks[24];
+  const knee=landmarks[26];
+  const ankle=landmarks[28];
+
+  if(!hip || !knee || !ankle) return;
+
+  const a=
+    angle(hip,knee,ankle);
+
+  if(a<105){
+
+    cameraPhase="down";
+
   }
-
-  const value =
-    Math.acos(
-      Math.max(
-        -1,
-        Math.min(
-          1,
-          dot/mag
-        )
-      )
-    );
-
-  return value *
-    180 /
-    Math.PI;
-}
-
-
-function torsoAngle(
-  shoulder,
-  hip
-){
-
-  const dx =
-    shoulder.x - hip.x;
-
-  const dy =
-    shoulder.y - hip.y;
-
-  return Math.abs(
-    Math.atan2(
-      dx,
-      dy
-    ) *
-    180 /
-    Math.PI
-  );
-}
-
-
-function updateCameraUI(){
-
-  const exercise =
-    exercises[
-      cameraExercise
-    ];
-
-  const coins =
-    cameraReps *
-    exercise.coins;
-
-  const xp =
-    cameraReps *
-    exercise.xp;
-
-  const calories =
-    calculateCalories(
-      cameraExercise,
-      cameraReps
-    );
-
-  document.getElementById(
-    "cameraReps"
-  ).textContent =
-    cameraReps;
-
-  document.getElementById(
-    "cameraCoins"
-  ).textContent =
-    coins;
-
-  document.getElementById(
-    "cameraXP"
-  ).textContent =
-    xp;
-
-  document.getElementById(
-    "cameraCalories"
-  ).textContent =
-    calories.toFixed(1);
-}
-
-
-document.getElementById(
-  "finishCamera"
-).onclick =
-async () => {
-
-  if(cameraReps <= 0){
-
-    toast(
-      "No se detectaron repeticiones."
-    );
-
-    return;
-  }
-
-  await registerActivity(
-    cameraExercise,
-    cameraReps
-  );
-
-  cameraReps =
-    0;
-
-  cameraState =
-    "up";
-
-  updateCameraUI();
-
-  toast(
-    "Sesión guardada ☁️"
-  );
-};
-
-
-/* =========================================================
-   UTILIDADES
-========================================================= */
-
-function escapeHTML(value){
-
-  return String(
-    value ?? ""
-  )
-  .replaceAll("&","&amp;")
-  .replaceAll("<","&lt;")
-  .replaceAll(">","&gt;")
-  .replaceAll('"',"&quot;")
-  .replaceAll("'","&#039;");
-}
-
-
-/* =========================================================
-   RESET
-========================================================= */
-
-window.resetSportCoins =
-async function(){
-
-  const confirmed =
-    confirm(
-      "¿Seguro que quieres borrar TODO tu progreso?"
-    );
-
-  if(!confirmed){
-    return;
-  }
-
-  state =
-    structuredClone(
-      defaultState
-    );
-
-  saveLocal();
 
   if(
-    cloudReady &&
-    currentUser
+    a>160 &&
+    cameraPhase==="down"
   ){
 
-    await supabase
-      .from(
-        "sportcoins_profiles"
-      )
-      .upsert({
+    cameraRepCount++;
+    cameraPhase="up";
 
-        id:
-          currentUser.id,
+    document.getElementById("cameraReps")
+      .textContent =
+        cameraRepCount;
 
-        state,
-
-        updated_at:
-          new Date().toISOString()
-
-      });
   }
+
+}
+
+
+function detectPushup(landmarks){
+
+  const shoulder=landmarks[12];
+  const elbow=landmarks[14];
+  const wrist=landmarks[16];
+
+  if(!shoulder || !elbow || !wrist) return;
+
+  const a=
+    angle(shoulder,elbow,wrist);
+
+  if(a<90){
+
+    cameraPhase="down";
+
+  }
+
+  if(
+    a>155 &&
+    cameraPhase==="down"
+  ){
+
+    cameraRepCount++;
+    cameraPhase="up";
+
+    document.getElementById("cameraReps")
+      .textContent =
+        cameraRepCount;
+
+  }
+
+}
+
+
+function detectAbs(landmarks){
+
+  const shoulder=landmarks[12];
+  const hip=landmarks[24];
+  const knee=landmarks[26];
+
+  if(!shoulder || !hip || !knee) return;
+
+  const a=
+    angle(shoulder,hip,knee);
+
+  if(a<70){
+
+    cameraPhase="down";
+
+  }
+
+  if(
+    a>125 &&
+    cameraPhase==="down"
+  ){
+
+    cameraRepCount++;
+    cameraPhase="up";
+
+    document.getElementById("cameraReps")
+      .textContent =
+        cameraRepCount;
+
+  }
+
+}
+
+
+async function cameraLoop(){
+
+  if(!cameraRunning) return;
+
+  const video =
+    document.getElementById("video");
+
+  if(
+    video.readyState >= 2 &&
+    poseLandmarker
+  ){
+
+    const result =
+      poseLandmarker.detectForVideo(
+        video,
+        performance.now()
+      );
+
+    if(result.landmarks?.length){
+
+      const landmarks =
+        result.landmarks[0];
+
+      const exercise =
+        document.getElementById("cameraExercise")
+          .value;
+
+      if(exercise==="squat"){
+
+        detectSquat(landmarks);
+
+      }else if(exercise==="pushup"){
+
+        detectPushup(landmarks);
+
+      }else if(exercise==="abs"){
+
+        detectAbs(landmarks);
+
+      }
+
+    }
+
+  }
+
+  requestAnimationFrame(cameraLoop);
+
+}
+
+
+/* =========================================================
+   START CAMERA
+========================================================= */
+
+document
+  .getElementById("startCamera")
+  .addEventListener("click",async()=>{
+
+    try{
+
+      await loadMediaPipe();
+
+      cameraStream =
+        await navigator.mediaDevices.getUserMedia({
+
+          video:{
+            facingMode:"user",
+            width:{ideal:1280},
+            height:{ideal:720}
+          },
+
+          audio:false
+
+        });
+
+      const video =
+        document.getElementById("video");
+
+      video.srcObject =
+        cameraStream;
+
+      await video.play();
+
+      cameraRepCount=0;
+      cameraPhase="up";
+
+      document.getElementById("cameraReps")
+        .textContent="0";
+
+      cameraRunning=true;
+
+      document.getElementById("cameraStatus")
+        .textContent =
+          "Cámara activa. Realiza el movimiento completo.";
+
+      requestAnimationFrame(cameraLoop);
+
+    }catch(error){
+
+      console.error(error);
+
+      showToast(
+        "No se pudo iniciar la cámara."
+      );
+
+    }
+
+  });
+
+
+/* =========================================================
+   STOP CAMERA
+========================================================= */
+
+document
+  .getElementById("stopCamera")
+  .addEventListener("click",async()=>{
+
+    cameraRunning=false;
+
+    if(cameraStream){
+
+      cameraStream
+        .getTracks()
+        .forEach(track=>track.stop());
+
+      cameraStream=null;
+
+    }
+
+    const reps =
+      cameraRepCount;
+
+    if(reps>0){
+
+      const exercise =
+        document.getElementById("cameraExercise")
+          .value;
+
+      await registerActivity(
+        exercise,
+        reps,
+        "camera"
+      );
+
+    }
+
+    document.getElementById("cameraStatus")
+      .textContent =
+        "Cámara detenida.";
+
+  });
+
+
+/* =========================================================
+   RENDER TODO
+========================================================= */
+
+function renderAll(){
+
+  renderHome();
+  renderExercises();
+  renderRoutines();
+  renderGames();
+  renderRewards();
+  renderFoodHistory();
+  renderAbsences();
+  renderStats();
+  renderProfile();
+
+}
+
+
+/* =========================================================
+   AUTH UI
+========================================================= */
+
+function setAuthMode(mode){
+
+  authMode=mode;
+
+  const login =
+    mode==="login";
+
+  document.getElementById("loginTab")
+    .className =
+      login
+        ? "primaryBtn"
+        : "secondaryBtn";
+
+  document.getElementById("registerTab")
+    .className =
+      !login
+        ? "primaryBtn"
+        : "secondaryBtn";
+
+  document.getElementById("authSubmit")
+    .textContent =
+      login
+        ? "Iniciar sesión"
+        : "Crear cuenta";
+
+  document.getElementById("authPassword")
+    .autocomplete =
+      login
+        ? "current-password"
+        : "new-password";
+
+  clearAuthMessage();
+
+}
+
+
+function clearAuthMessage(){
+
+  const box =
+    document.getElementById("authMessage");
+
+  box.textContent="";
+  box.className="authMessage";
+
+}
+
+
+function authMessage(message,type="error"){
+
+  const box =
+    document.getElementById("authMessage");
+
+  box.textContent=message;
+
+  box.className =
+    `authMessage ${type}`;
+
+}
+
+
+/* =========================================================
+   LOGIN / REGISTER
+========================================================= */
+
+document
+  .getElementById("loginTab")
+  .addEventListener(
+    "click",
+    ()=>setAuthMode("login")
+  );
+
+
+document
+  .getElementById("registerTab")
+  .addEventListener(
+    "click",
+    ()=>setAuthMode("register")
+  );
+
+
+document
+  .getElementById("authForm")
+  .addEventListener("submit",async event=>{
+
+    event.preventDefault();
+
+    const email =
+      document.getElementById("authEmail")
+        .value
+        .trim();
+
+    const password =
+      document.getElementById("authPassword")
+        .value;
+
+    const button =
+      document.getElementById("authSubmit");
+
+    button.disabled=true;
+
+    authMessage(
+      authMode==="login"
+        ? "Iniciando sesión..."
+        : "Creando cuenta...",
+      "success"
+    );
+
+    try{
+
+      if(authMode==="login"){
+
+        const {error} =
+          await withTimeout(
+
+            supabase.auth.signInWithPassword({
+
+              email,
+              password
+
+            }),
+
+            12000
+
+          );
+
+        if(error) throw error;
+
+      }else{
+
+        const {data,error} =
+          await withTimeout(
+
+            supabase.auth.signUp({
+
+              email,
+              password
+
+            }),
+
+            12000
+
+          );
+
+        if(error) throw error;
+
+        if(!data.session){
+
+          authMessage(
+            "Cuenta creada. Revisa tu correo para confirmar la cuenta.",
+            "success"
+          );
+
+        }
+
+      }
+
+    }catch(error){
+
+      console.error(error);
+
+      authMessage(
+        translateAuthError(error),
+        "error"
+      );
+
+    }finally{
+
+      button.disabled=false;
+
+    }
+
+  });
+
+
+function translateAuthError(error){
+
+  const message =
+    error?.message || "";
+
+  if(
+    message.toLowerCase()
+      .includes("invalid login credentials")
+  ){
+
+    return "Correo o contraseña incorrectos.";
+
+  }
+
+  if(
+    message.toLowerCase()
+      .includes("user already registered")
+  ){
+
+    return "Ese correo ya tiene una cuenta.";
+
+  }
+
+  if(
+    message.toLowerCase()
+      .includes("password")
+  ){
+
+    return "La contraseña debe tener al menos 6 caracteres.";
+
+  }
+
+  if(
+    message.toLowerCase()
+      .includes("email")
+  ){
+
+    return "Revisa el correo electrónico.";
+
+  }
+
+  return message ||
+    "No se pudo completar la operación.";
+
+}
+
+
+/* =========================================================
+   PASSWORD RESET
+========================================================= */
+
+document
+  .getElementById("forgotPassword")
+  .addEventListener("click",async()=>{
+
+    const email =
+      document.getElementById("authEmail")
+        .value
+        .trim();
+
+    if(!email){
+
+      authMessage(
+        "Escribe primero tu correo."
+      );
+
+      return;
+
+    }
+
+    try{
+
+      const redirectTo =
+        `${location.origin}${location.pathname}`;
+
+      const {error} =
+        await supabase.auth
+          .resetPasswordForEmail(
+            email,
+            {
+              redirectTo
+            }
+          );
+
+      if(error) throw error;
+
+      authMessage(
+        "Te enviamos las instrucciones para recuperar tu contraseña.",
+        "success"
+      );
+
+    }catch(error){
+
+      authMessage(
+        error.message
+      );
+
+    }
+
+  });
+
+
+/* =========================================================
+   LOGOUT
+========================================================= */
+
+document
+  .getElementById("logoutBtn")
+  .addEventListener("click",async()=>{
+
+    await supabase.auth.signOut();
+
+  });
+
+
+/* =========================================================
+   MOSTRAR APP
+========================================================= */
+
+function showLoading(text){
+
+  document
+    .getElementById("loadingScreen")
+    .classList.remove("hidden");
+
+  document
+    .getElementById("loadingText")
+    .textContent =
+      text || "Cargando...";
+
+}
+
+
+function hideLoading(){
+
+  document
+    .getElementById("loadingScreen")
+    .classList.add("hidden");
+
+}
+
+
+function showAuth(){
+
+  document
+    .getElementById("appShell")
+    .classList.add("hidden");
+
+  document
+    .getElementById("authScreen")
+    .classList.remove("hidden");
+
+  hideLoading();
+
+}
+
+
+function showApp(){
+
+  document
+    .getElementById("authScreen")
+    .classList.add("hidden");
+
+  document
+    .getElementById("appShell")
+    .classList.remove("hidden");
+
+  hideLoading();
+
+}
+
+
+/* =========================================================
+   AUTH STATE
+========================================================= */
+
+async function handleSession(session){
+
+  if(!session){
+
+    currentUser=null;
+
+    showAuth();
+
+    return;
+
+  }
+
+  currentUser =
+    session.user;
+
+  showLoading(
+    "Cargando tu progreso..."
+  );
+
+  loadLocal();
+
+  await loadCloudState();
+
+  state.level =
+    calculateLevel();
 
   renderAll();
 
-  toast(
-    "Progreso reiniciado."
+  showApp();
+
+}
+
+
+supabase.auth
+  .onAuthStateChange(
+    (event,session)=>{
+
+      setTimeout(
+        ()=>handleSession(session),
+        0
+      );
+
+    }
   );
-};
 
 
 /* =========================================================
-   INICIO
+   BOOT
 ========================================================= */
 
-renderAll();
+async function boot(){
 
-initCloud();
+  showLoading(
+    "Conectando con SportCoins..."
+  );
+
+  try{
+
+    const result =
+      await withTimeout(
+        supabase.auth.getSession(),
+        10000
+      );
+
+    const session =
+      result?.data?.session || null;
+
+    await handleSession(session);
+
+  }catch(error){
+
+    console.error("BOOT:",error);
+
+    currentUser=null;
+
+    showAuth();
+
+    authMessage(
+      "No se pudo conectar con Supabase. Puedes intentar iniciar sesión nuevamente."
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   INICIAR
+========================================================= */
+
+setAuthMode("login");
+
+boot();
 
 </script>
 
