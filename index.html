@@ -1,1 +1,3872 @@
 
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#101326">
+<title>SportCoins</title>
+
+<!-- Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- MediaPipe Tasks Vision -->
+<script type="module">
+  import {
+    FilesetResolver,
+    PoseLandmarker
+  } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22";
+
+  window.MediaPipeVision = {
+    FilesetResolver,
+    PoseLandmarker
+  };
+</script>
+
+<style>
+:root{
+  --bg:#090b16;
+  --panel:#111527;
+  --panel2:#171b31;
+  --panel3:#1d2340;
+  --text:#f5f7ff;
+  --muted:#9299b5;
+  --accent:#7c5cff;
+  --accent2:#9a7cff;
+  --green:#42d392;
+  --yellow:#ffd166;
+  --red:#ff5d73;
+  --blue:#4ca5ff;
+  --border:rgba(255,255,255,.08);
+  --shadow:0 12px 35px rgba(0,0,0,.25);
+}
+
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html{
+  scroll-behavior:smooth;
+}
+
+body{
+  margin:0;
+  background:
+    radial-gradient(circle at 20% 0%,rgba(124,92,255,.12),transparent 30%),
+    var(--bg);
+  color:var(--text);
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  min-height:100vh;
+}
+
+button,
+input,
+select,
+textarea{
+  font:inherit;
+}
+
+button{
+  border:0;
+  cursor:pointer;
+}
+
+.hidden{
+  display:none!important;
+}
+
+/* =========================
+   APP
+========================= */
+
+.app{
+  min-height:100vh;
+}
+
+.sidebar{
+  position:fixed;
+  z-index:1000;
+  left:0;
+  top:0;
+  bottom:0;
+  width:250px;
+  padding:18px 14px;
+  background:rgba(12,15,29,.98);
+  border-right:1px solid var(--border);
+  transform:translateX(-105%);
+  transition:transform .25s ease;
+  overflow-y:auto;
+}
+
+.sidebar.open{
+  transform:translateX(0);
+}
+
+.sidebar-logo{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:8px 10px 20px;
+}
+
+.logo-icon{
+  width:38px;
+  height:38px;
+  border-radius:12px;
+  display:grid;
+  place-items:center;
+  background:linear-gradient(135deg,var(--accent),#4d37ba);
+  font-size:20px;
+}
+
+.logo-title{
+  font-size:17px;
+  font-weight:800;
+}
+
+.logo-sub{
+  font-size:11px;
+  color:var(--muted);
+}
+
+.nav{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+}
+
+.nav button{
+  width:100%;
+  text-align:left;
+  padding:11px 12px;
+  border-radius:11px;
+  color:#aeb5d1;
+  background:transparent;
+  font-weight:650;
+  transition:.15s;
+}
+
+.nav button:hover,
+.nav button.active{
+  background:rgba(124,92,255,.15);
+  color:#fff;
+}
+
+.sidebar-bottom{
+  margin-top:18px;
+  border-top:1px solid var(--border);
+  padding-top:15px;
+}
+
+.close-sidebar{
+  width:100%;
+  padding:9px;
+  margin-bottom:10px;
+  border-radius:9px;
+  background:#1b2037;
+  color:#c9cee2;
+}
+
+.overlay{
+  position:fixed;
+  z-index:900;
+  inset:0;
+  background:rgba(0,0,0,.55);
+  opacity:0;
+  pointer-events:none;
+  transition:.2s;
+}
+
+.overlay.show{
+  opacity:1;
+  pointer-events:auto;
+}
+
+.main{
+  width:100%;
+  min-height:100vh;
+}
+
+.topbar{
+  position:sticky;
+  top:0;
+  z-index:700;
+  height:64px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 14px;
+  background:rgba(9,11,22,.86);
+  backdrop-filter:blur(15px);
+  border-bottom:1px solid var(--border);
+}
+
+.menu-btn{
+  width:40px;
+  height:40px;
+  border-radius:11px;
+  background:#171b30;
+  color:white;
+  font-size:19px;
+}
+
+.top-title{
+  font-size:16px;
+  font-weight:800;
+  flex:1;
+}
+
+.coin-pill{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  padding:7px 10px;
+  border-radius:999px;
+  background:#171b30;
+  color:#ffd166;
+  font-size:13px;
+  font-weight:800;
+}
+
+.content{
+  width:min(1100px,100%);
+  margin:auto;
+  padding:18px 14px 60px;
+}
+
+.page{
+  display:none;
+}
+
+.page.active{
+  display:block;
+}
+
+h1{
+  margin:0 0 5px;
+  font-size:24px;
+}
+
+h2{
+  margin:0;
+  font-size:17px;
+}
+
+h3{
+  margin:0;
+  font-size:14px;
+}
+
+.subtitle{
+  color:var(--muted);
+  font-size:13px;
+  margin-bottom:18px;
+}
+
+/* =========================
+   CARDS
+========================= */
+
+.grid{
+  display:grid;
+  gap:10px;
+}
+
+.stats-grid{
+  grid-template-columns:repeat(4,1fr);
+}
+
+.card{
+  background:linear-gradient(145deg,var(--panel),#0e1222);
+  border:1px solid var(--border);
+  border-radius:15px;
+  padding:14px;
+  box-shadow:var(--shadow);
+}
+
+.stat-card{
+  min-height:92px;
+}
+
+.stat-label{
+  color:var(--muted);
+  font-size:11px;
+  margin-bottom:7px;
+}
+
+.stat-value{
+  font-size:23px;
+  font-weight:850;
+}
+
+.stat-icon{
+  font-size:17px;
+  margin-right:4px;
+}
+
+.two{
+  grid-template-columns:1.2fr .8fr;
+  margin-top:10px;
+}
+
+.progress{
+  height:7px;
+  background:#252b43;
+  border-radius:20px;
+  overflow:hidden;
+  margin:9px 0;
+}
+
+.progress > div{
+  height:100%;
+  background:linear-gradient(90deg,var(--accent),#a685ff);
+  border-radius:20px;
+  transition:.3s;
+}
+
+.level-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.level-badge{
+  padding:5px 9px;
+  border-radius:999px;
+  background:rgba(124,92,255,.15);
+  color:#bdaeff;
+  font-size:11px;
+  font-weight:800;
+}
+
+/* =========================
+   BUTTONS
+========================= */
+
+.btn{
+  padding:9px 12px;
+  border-radius:10px;
+  color:white;
+  background:#252b43;
+  font-weight:750;
+  font-size:13px;
+}
+
+.btn.primary{
+  background:linear-gradient(135deg,var(--accent),#6248d7);
+}
+
+.btn.green{
+  background:#176947;
+}
+
+.btn.red{
+  background:#612536;
+}
+
+.btn.small{
+  padding:7px 9px;
+  font-size:12px;
+}
+
+.btn:active{
+  transform:scale(.98);
+}
+
+/* =========================
+   ROUTINES
+========================= */
+
+.section-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin:18px 0 10px;
+  gap:10px;
+}
+
+.routine-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+}
+
+.routine{
+  padding:13px;
+}
+
+.routine-icon{
+  font-size:23px;
+  margin-bottom:8px;
+}
+
+.routine p{
+  color:var(--muted);
+  font-size:11px;
+  line-height:1.45;
+  min-height:32px;
+}
+
+/* =========================
+   EXERCISES
+========================= */
+
+.exercise-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:9px;
+}
+
+.exercise-card{
+  padding:12px;
+}
+
+.exercise-card p{
+  color:var(--muted);
+  font-size:11px;
+  margin:5px 0 10px;
+}
+
+/* =========================
+   CAMERA
+========================= */
+
+.camera-card{
+  padding:10px;
+}
+
+.camera-box{
+  position:relative;
+  width:100%;
+  aspect-ratio:16/10;
+  background:#05060c;
+  border-radius:13px;
+  overflow:hidden;
+  border:1px solid var(--border);
+}
+
+#cameraVideo,
+#poseCanvas{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  transform:scaleX(-1);
+}
+
+#poseCanvas{
+  pointer-events:none;
+}
+
+.camera-overlay{
+  position:absolute;
+  left:10px;
+  right:10px;
+  top:10px;
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:8px;
+}
+
+.camera-status{
+  padding:7px 9px;
+  border-radius:9px;
+  background:rgba(0,0,0,.65);
+  font-size:11px;
+}
+
+.rep-counter{
+  min-width:74px;
+  text-align:center;
+  padding:9px 10px;
+  border-radius:11px;
+  background:rgba(124,92,255,.9);
+}
+
+.rep-number{
+  font-size:24px;
+  line-height:1;
+  font-weight:900;
+}
+
+.rep-label{
+  font-size:9px;
+  opacity:.8;
+}
+
+.camera-controls{
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
+  margin-top:9px;
+}
+
+.camera-controls .btn{
+  flex:1;
+}
+
+.camera-info{
+  margin-top:9px;
+  padding:9px;
+  background:#161a2d;
+  border-radius:10px;
+  color:#aeb5d1;
+  font-size:11px;
+  line-height:1.45;
+}
+
+.detect-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:7px;
+  margin-top:10px;
+}
+
+.detect-option{
+  padding:9px 7px;
+  border-radius:9px;
+  background:#171b30;
+  color:#aeb5d1;
+  text-align:center;
+  font-size:11px;
+}
+
+.detect-option.active{
+  background:rgba(124,92,255,.2);
+  color:white;
+  border:1px solid rgba(124,92,255,.45);
+}
+
+/* =========================
+   MONTHLY
+========================= */
+
+.month-select{
+  background:#171b30;
+  border:1px solid var(--border);
+  color:white;
+  padding:8px 10px;
+  border-radius:9px;
+}
+
+.month-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+}
+
+.month-stat{
+  padding:13px;
+}
+
+.month-stat .big{
+  font-size:21px;
+  font-weight:850;
+}
+
+.month-stat small{
+  color:var(--muted);
+}
+
+/* =========================
+   REWARDS / GAMES
+========================= */
+
+.reward-grid,
+.game-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+}
+
+.reward-card,
+.game-card{
+  padding:13px;
+}
+
+.reward-price{
+  color:#ffd166;
+  font-size:12px;
+  font-weight:800;
+  margin:7px 0 10px;
+}
+
+.game-card .emoji{
+  font-size:25px;
+}
+
+/* =========================
+   FORM
+========================= */
+
+.form-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:9px;
+}
+
+label{
+  display:block;
+  color:#b5bad0;
+  font-size:11px;
+  margin-bottom:5px;
+}
+
+input,
+select,
+textarea{
+  width:100%;
+  padding:10px;
+  border-radius:9px;
+  background:#0c1020;
+  color:white;
+  border:1px solid var(--border);
+  outline:none;
+}
+
+input:focus,
+select:focus,
+textarea:focus{
+  border-color:rgba(124,92,255,.7);
+}
+
+textarea{
+  resize:vertical;
+  min-height:80px;
+}
+
+/* =========================
+   FOOD
+========================= */
+
+.food-preview{
+  width:100%;
+  max-height:240px;
+  object-fit:cover;
+  border-radius:11px;
+  margin-top:9px;
+  display:none;
+}
+
+.food-result{
+  margin-top:10px;
+  line-height:1.5;
+  color:#c8cde0;
+  font-size:12px;
+  white-space:pre-wrap;
+}
+
+.food-note{
+  margin-top:9px;
+  padding:9px;
+  border-radius:9px;
+  background:rgba(255,209,102,.08);
+  color:#c8b477;
+  font-size:10px;
+  line-height:1.45;
+}
+
+/* =========================
+   ABSENCES
+========================= */
+
+.absence{
+  padding:11px;
+  background:#15192c;
+  border-radius:10px;
+  margin-top:7px;
+  border:1px solid var(--border);
+}
+
+.status{
+  display:inline-block;
+  padding:4px 7px;
+  border-radius:999px;
+  font-size:9px;
+  background:#3c3520;
+  color:#ffd166;
+}
+
+/* =========================
+   MODAL
+========================= */
+
+.modal{
+  position:fixed;
+  z-index:1500;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:14px;
+  background:rgba(0,0,0,.7);
+}
+
+.modal.show{
+  display:flex;
+}
+
+.modal-box{
+  width:min(500px,100%);
+  max-height:88vh;
+  overflow:auto;
+  background:#111527;
+  border:1px solid var(--border);
+  border-radius:17px;
+  padding:15px;
+  box-shadow:0 30px 80px rgba(0,0,0,.5);
+}
+
+.modal-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:12px;
+}
+
+.modal-close{
+  width:34px;
+  height:34px;
+  border-radius:9px;
+  background:#202640;
+  color:white;
+}
+
+/* =========================
+   TOAST
+========================= */
+
+.toast{
+  position:fixed;
+  z-index:3000;
+  left:50%;
+  bottom:18px;
+  transform:translate(-50%,120px);
+  background:#202640;
+  color:white;
+  padding:10px 14px;
+  border-radius:10px;
+  font-size:12px;
+  box-shadow:var(--shadow);
+  transition:.25s;
+  max-width:90%;
+  text-align:center;
+}
+
+.toast.show{
+  transform:translate(-50%,0);
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media(max-width:800px){
+  .stats-grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .two{
+    grid-template-columns:1fr;
+  }
+
+  .routine-grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .exercise-grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .reward-grid,
+  .game-grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .month-grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+}
+
+@media(max-width:520px){
+  .content{
+    padding:14px 10px 45px;
+  }
+
+  h1{
+    font-size:21px;
+  }
+
+  .topbar{
+    height:58px;
+  }
+
+  .coin-pill{
+    font-size:11px;
+    padding:6px 8px;
+  }
+
+  .stats-grid{
+    gap:7px;
+  }
+
+  .stat-card{
+    min-height:82px;
+    padding:11px;
+  }
+
+  .stat-value{
+    font-size:19px;
+  }
+
+  .card{
+    border-radius:13px;
+  }
+
+  .routine-grid{
+    gap:7px;
+  }
+
+  .routine{
+    padding:10px;
+  }
+
+  .exercise-grid{
+    gap:7px;
+  }
+
+  .reward-grid,
+  .game-grid{
+    gap:7px;
+  }
+
+  .form-grid{
+    grid-template-columns:1fr;
+  }
+
+  .month-grid{
+    gap:7px;
+  }
+
+  .camera-box{
+    aspect-ratio:4/3;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside id="sidebar" class="sidebar">
+
+    <div class="sidebar-logo">
+      <div class="logo-icon">🏃</div>
+      <div>
+        <div class="logo-title">SportCoins</div>
+        <div class="logo-sub">Entrena · gana · progresa</div>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <button class="nav-btn active" data-page="home">🏠 Inicio</button>
+      <button class="nav-btn" data-page="camera">📷 Cámara</button>
+      <button class="nav-btn" data-page="routines">🏋️ Rutinas</button>
+      <button class="nav-btn" data-page="exercises">💪 Ejercicios</button>
+      <button class="nav-btn" data-page="games">🎮 Minijuegos</button>
+      <button class="nav-btn" data-page="rewards">🎁 Recompensas</button>
+      <button class="nav-btn" data-page="stats">📊 Estadísticas</button>
+      <button class="nav-btn" data-page="food">🍓 Diario de comida</button>
+      <button class="nav-btn" data-page="absence">📅 Ausencias</button>
+      <button class="nav-btn" data-page="profile">👤 Perfil</button>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <button id="resetBtn" class="close-sidebar">♻️ Reiniciar datos</button>
+    </div>
+
+  </aside>
+
+  <div id="overlay" class="overlay"></div>
+
+  <main class="main">
+
+    <header class="topbar">
+      <button id="menuBtn" class="menu-btn">☰</button>
+      <div id="topTitle" class="top-title">Inicio</div>
+      <div class="coin-pill">🪙 <span id="topCoins">0</span></div>
+    </header>
+
+    <div class="content">
+
+      <!-- HOME -->
+      <section id="page-home" class="page active">
+
+        <h1>Hola, atleta 👋</h1>
+        <div class="subtitle">
+          Convierte tu entrenamiento en progreso.
+        </div>
+
+        <div class="grid stats-grid">
+
+          <div class="card stat-card">
+            <div class="stat-label">🪙 SportCoins</div>
+            <div id="homeCoins" class="stat-value">0</div>
+          </div>
+
+          <div class="card stat-card">
+            <div class="stat-label">⚡ XP</div>
+            <div id="homeXP" class="stat-value">0</div>
+          </div>
+
+          <div class="card stat-card">
+            <div class="stat-label">🔥 Racha</div>
+            <div id="homeStreak" class="stat-value">0</div>
+          </div>
+
+          <div class="card stat-card">
+            <div class="stat-label">🔥 Calorías</div>
+            <div id="homeCalories" class="stat-value">0</div>
+          </div>
+
+        </div>
+
+        <div class="grid two">
+
+          <div class="card">
+
+            <div class="level-row">
+              <div>
+                <div class="stat-label">Nivel actual</div>
+                <h2 id="levelName">Principiante</h2>
+              </div>
+
+              <div id="levelBadge" class="level-badge">
+                NIVEL 1
+              </div>
+            </div>
+
+            <div class="progress">
+              <div id="xpProgress" style="width:0%"></div>
+            </div>
+
+            <div style="display:flex;justify-content:space-between;color:var(--muted);font-size:10px">
+              <span id="xpCurrent">0 XP</span>
+              <span id="xpNext">100 XP</span>
+            </div>
+
+          </div>
+
+          <div class="card">
+            <div class="stat-label">🎯 Hoy</div>
+            <h2 id="todayGoal">0 / 50 XP</h2>
+
+            <div class="progress">
+              <div id="todayProgress" style="width:0%"></div>
+            </div>
+
+            <div style="font-size:10px;color:var(--muted)">
+              Completa actividad para subir tu progreso.
+            </div>
+          </div>
+
+        </div>
+
+        <div class="section-head">
+          <h2>Acciones rápidas</h2>
+        </div>
+
+        <div class="grid" style="grid-template-columns:repeat(3,1fr)">
+
+          <button class="card" onclick="goPage('camera')" style="text-align:left;color:white">
+            📷<br>
+            <b>Entrenar con cámara</b>
+            <div style="color:var(--muted);font-size:10px;margin-top:4px">
+              Detecta tus repeticiones
+            </div>
+          </button>
+
+          <button class="card" onclick="goPage('routines')" style="text-align:left;color:white">
+            🏋️<br>
+            <b>Empezar rutina</b>
+            <div style="color:var(--muted);font-size:10px;margin-top:4px">
+              Entrena y gana XP
+            </div>
+          </button>
+
+          <button class="card" onclick="goPage('stats')" style="text-align:left;color:white">
+            📊<br>
+            <b>Ver estadísticas</b>
+            <div style="color:var(--muted);font-size:10px;margin-top:4px">
+              Mira tu mes
+            </div>
+          </button>
+
+        </div>
+
+      </section>
+
+      <!-- CAMERA -->
+      <section id="page-camera" class="page">
+
+        <h1>📷 Cámara</h1>
+        <div class="subtitle">
+          MediaPipe analiza la posición de tu cuerpo directamente en el navegador.
+        </div>
+
+        <div class="card camera-card">
+
+          <div class="camera-box">
+
+            <video id="cameraVideo" autoplay muted playsinline></video>
+            <canvas id="poseCanvas"></canvas>
+
+            <div class="camera-overlay">
+
+              <div id="cameraStatus" class="camera-status">
+                Cámara apagada
+              </div>
+
+              <div class="rep-counter">
+                <div id="repNumber" class="rep-number">0</div>
+                <div class="rep-label">REPS VÁLIDAS</div>
+              </div>
+
+            </div>
+
+          </div>
+
+          <div class="detect-grid">
+
+            <button class="detect-option active" data-exercise="squat">
+              🦵 Sentadilla
+            </button>
+
+            <button class="detect-option" data-exercise="abs">
+              💪 Abdominal
+            </button>
+
+            <button class="detect-option" data-exercise="pushup">
+              🫸 Lagartija
+            </button>
+
+          </div>
+
+          <div class="camera-controls">
+            <button id="startCamera" class="btn primary">
+              📷 Encender cámara
+            </button>
+
+            <button id="stopCamera" class="btn red">
+              ⏹ Detener
+            </button>
+
+            <button id="finishSession" class="btn green">
+              ✅ Terminar
+            </button>
+          </div>
+
+          <div class="camera-info">
+            <b id="cameraExerciseName">Sentadillas</b><br>
+            Colócate de cuerpo completo frente a la cámara.
+            La repetición solo se registra cuando el movimiento pasa
+            por las posiciones necesarias.
+          </div>
+
+        </div>
+
+        <div class="card" style="margin-top:10px">
+          <div class="section-head" style="margin:0 0 8px">
+            <h2>Sesión actual</h2>
+          </div>
+
+          <div class="grid stats-grid">
+
+            <div>
+              <div class="stat-label">Repeticiones</div>
+              <div id="sessionReps" class="stat-value">0</div>
+            </div>
+
+            <div>
+              <div class="stat-label">XP</div>
+              <div id="sessionXP" class="stat-value">0</div>
+            </div>
+
+            <div>
+              <div class="stat-label">Coins</div>
+              <div id="sessionCoins" class="stat-value">0</div>
+            </div>
+
+            <div>
+              <div class="stat-label">Calorías*</div>
+              <div id="sessionCalories" class="stat-value">0</div>
+            </div>
+
+          </div>
+
+          <div style="font-size:9px;color:var(--muted);margin-top:8px">
+            * Las calorías son una estimación de actividad, no una medición médica.
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ROUTINES -->
+      <section id="page-routines" class="page">
+
+        <h1>🏋️ Rutinas</h1>
+        <div class="subtitle">Elige una rutina y completa sus ejercicios.</div>
+
+        <div id="routineGrid" class="routine-grid"></div>
+
+      </section>
+
+      <!-- EXERCISES -->
+      <section id="page-exercises" class="page">
+
+        <h1>💪 Ejercicios</h1>
+        <div class="subtitle">Ejercicios disponibles en SportCoins.</div>
+
+        <div id="exerciseGrid" class="exercise-grid"></div>
+
+      </section>
+
+      <!-- GAMES -->
+      <section id="page-games" class="page">
+
+        <h1>🎮 Minijuegos</h1>
+        <div class="subtitle">Todos están relacionados con actividad física.</div>
+
+        <div id="gameGrid" class="game-grid"></div>
+
+      </section>
+
+      <!-- REWARDS -->
+      <section id="page-rewards" class="page">
+
+        <h1>🎁 Recompensas</h1>
+        <div class="subtitle">Usa tus SportCoins para desbloquear beneficios.</div>
+
+        <div id="rewardGrid" class="reward-grid"></div>
+
+      </section>
+
+      <!-- STATS -->
+      <section id="page-stats" class="page">
+
+        <div class="section-head">
+          <div>
+            <h1>📊 Estadísticas</h1>
+            <div class="subtitle" style="margin:4px 0 0">
+              Tu progreso mensual.
+            </div>
+          </div>
+
+          <select id="monthSelect" class="month-select"></select>
+        </div>
+
+        <div id="monthGrid" class="month-grid"></div>
+
+        <div class="card" style="margin-top:10px">
+          <h2>🔥 Calorías de actividad</h2>
+          <p style="font-size:11px;color:var(--muted);line-height:1.5">
+            SportCoins muestra una estimación de las calorías utilizadas
+            durante el ejercicio. No calcula cuánto peso bajaste ni crea
+            metas de pérdida de peso.
+          </p>
+        </div>
+
+      </section>
+
+      <!-- FOOD -->
+      <section id="page-food" class="page">
+
+        <h1>🍓 Diario de comida</h1>
+        <div class="subtitle">
+          Registra alimentos para obtener información nutricional.
+        </div>
+
+        <div class="card">
+
+          <div class="form-grid">
+
+            <div>
+              <label>¿Qué comiste?</label>
+              <textarea id="foodText" placeholder="Ejemplo: tacos de pollo con aguacate"></textarea>
+            </div>
+
+            <div>
+              <label>Foto opcional</label>
+              <input id="foodImage" type="file" accept="image/*">
+              <img id="foodPreview" class="food-preview">
+            </div>
+
+          </div>
+
+          <button id="analyzeFoodBtn" class="btn primary" style="margin-top:10px">
+            🔎 Analizar comida
+          </button>
+
+          <div id="foodResult" class="food-result"></div>
+
+          <div class="food-note">
+            La información de alimentos es orientativa.
+            No se utiliza para quitar SportCoins, castigar comidas,
+            crear déficits calóricos ni establecer metas de peso.
+          </div>
+
+        </div>
+
+        <div class="section-head">
+          <h2>Historial</h2>
+        </div>
+
+        <div id="foodHistory"></div>
+
+      </section>
+
+      <!-- ABSENCE -->
+      <section id="page-absence" class="page">
+
+        <h1>📅 Ausencias</h1>
+        <div class="subtitle">
+          Si sabes que no podrás entrenar, registra el motivo.
+        </div>
+
+        <div class="card">
+
+          <div class="form-grid">
+
+            <div>
+              <label>Fecha</label>
+              <input id="absenceDate" type="date">
+            </div>
+
+            <div>
+              <label>Motivo</label>
+              <select id="absenceReason">
+                <option>Enfermedad</option>
+                <option>Lesión</option>
+                <option>Escuela</option>
+                <option>Viaje</option>
+                <option>Compromiso familiar</option>
+                <option>Otro</option>
+              </select>
+            </div>
+
+          </div>
+
+          <label style="margin-top:9px">Detalles</label>
+          <textarea id="absenceDetails"></textarea>
+
+          <button id="absenceBtn" class="btn primary" style="margin-top:9px">
+            📩 Registrar ausencia
+          </button>
+
+        </div>
+
+        <div id="absenceList"></div>
+
+        <div class="card" style="margin-top:10px">
+          <div style="font-size:11px;color:#c4c9dc;line-height:1.5">
+            Las ausencias requieren revisión de un adulto/tutor cuando
+            corresponda. La IA no debe decidir por sí sola si una ausencia
+            es válida.
+          </div>
+        </div>
+
+      </section>
+
+      <!-- PROFILE -->
+      <section id="page-profile" class="page">
+
+        <h1>👤 Perfil</h1>
+        <div class="subtitle">Datos usados para personalizar SportCoins.</div>
+
+        <div class="card">
+
+          <div class="form-grid">
+
+            <div>
+              <label>Nombre</label>
+              <input id="profileName">
+            </div>
+
+            <div>
+              <label>Edad</label>
+              <input id="profileAge" type="number" min="1" max="120">
+            </div>
+
+            <div>
+              <label>Altura (cm)</label>
+              <input id="profileHeight" type="number">
+            </div>
+
+            <div>
+              <label>Peso (kg, opcional)</label>
+              <input id="profileWeight" type="number" step="0.1">
+            </div>
+
+          </div>
+
+          <button id="saveProfile" class="btn primary" style="margin-top:10px">
+            💾 Guardar
+          </button>
+
+        </div>
+
+        <div class="card" style="margin-top:10px">
+          <b style="font-size:12px">Privacidad</b>
+          <p style="font-size:10px;color:var(--muted);line-height:1.5">
+            El peso es opcional y solo puede utilizarse localmente para
+            mejorar la estimación de gasto energético. No se convierte
+            en una puntuación, ranking ni meta de peso.
+          </p>
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<!-- MODAL -->
+<div id="modal" class="modal">
+  <div class="modal-box">
+
+    <div class="modal-head">
+      <h2 id="modalTitle">SportCoins</h2>
+      <button id="modalClose" class="modal-close">✕</button>
+    </div>
+
+    <div id="modalContent"></div>
+
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+/* =========================================================
+   CONFIGURACIÓN
+========================================================= */
+
+const SPORTCOINS_CONFIG = {
+  supabase:{
+    url:"https://jzgdzsqvaqpkrozsqklv.supabase.co",
+    publishableKey:"sb_publishable_9_mOdh_jjM58Rt-f63bPsw_rRNErsA3"
+  },
+
+  edgeFunctions:{
+    gemini:"analyze-food",
+    usda:"food-nutrition"
+  },
+
+  app:{
+    name:"SportCoins",
+    version:"1.1.0"
+  }
+};
+
+const supabaseClient =
+  window.supabase.createClient(
+    SPORTCOINS_CONFIG.supabase.url,
+    SPORTCOINS_CONFIG.supabase.publishableKey
+  );
+
+/* =========================================================
+   DATOS
+========================================================= */
+
+const LEVELS = [
+  "Principiante",
+  "Activo",
+  "Constante",
+  "Entrenador",
+  "Atleta",
+  "Élite",
+  "Leyenda"
+];
+
+const EXERCISES = {
+
+  abs:{
+    name:"Abdominales",
+    icon:"💪",
+    coins:1,
+    xp:2,
+    met:3.8,
+    secPerRep:3,
+    unit:"rep"
+  },
+
+  squat:{
+    name:"Sentadillas",
+    icon:"🦵",
+    coins:1,
+    xp:2,
+    met:5,
+    secPerRep:3,
+    unit:"rep"
+  },
+
+  pushup:{
+    name:"Lagartijas",
+    icon:"🫸",
+    coins:2,
+    xp:3,
+    met:4,
+    secPerRep:4,
+    unit:"rep"
+  },
+
+  lunge:{
+    name:"Desplantes",
+    icon:"🏃",
+    coins:1,
+    xp:2,
+    met:4,
+    secPerRep:3,
+    unit:"rep"
+  },
+
+  burpee:{
+    name:"Burpees",
+    icon:"🔥",
+    coins:3,
+    xp:4,
+    met:8,
+    secPerRep:5,
+    unit:"rep"
+  },
+
+  jump:{
+    name:"Saltos",
+    icon:"⬆️",
+    coins:1,
+    xp:2,
+    met:8,
+    secPerRep:2,
+    unit:"rep"
+  },
+
+  mountain:{
+    name:"Mountain Climbers",
+    icon:"⛰️",
+    coins:1,
+    xp:2,
+    met:8,
+    secPerRep:2,
+    unit:"rep"
+  },
+
+  jumpingJack:{
+    name:"Jumping Jacks",
+    icon:"⭐",
+    coins:1,
+    xp:2,
+    met:8,
+    secPerRep:2,
+    unit:"rep"
+  },
+
+  bridge:{
+    name:"Puente de glúteos",
+    icon:"🌉",
+    coins:1,
+    xp:2,
+    met:3.5,
+    secPerRep:3,
+    unit:"rep"
+  },
+
+  plank:{
+    name:"Plancha",
+    icon:"🧘",
+    coins:15,
+    xp:20,
+    met:3.3,
+    unit:"min"
+  },
+
+  calf:{
+    name:"Pantorrillas",
+    icon:"🦶",
+    coins:1,
+    xp:2,
+    met:3.5,
+    secPerRep:2,
+    unit:"rep"
+  },
+
+  highKnees:{
+    name:"Rodillas altas",
+    icon:"🏃",
+    coins:1,
+    xp:2,
+    met:8,
+    secPerRep:2,
+    unit:"rep"
+  },
+
+  running:{
+    name:"Running",
+    icon:"🏃‍♂️",
+    coins:20,
+    xp:30,
+    met:8,
+    unit:"min"
+  }
+};
+
+const ROUTINES = {
+
+  principiante:{
+    name:"Principiante",
+    icon:"🌱",
+    description:"Una rutina sencilla para comenzar.",
+    exercises:[
+      ["squat",10],
+      ["abs",10],
+      ["jump",20]
+    ]
+  },
+
+  fuerza:{
+    name:"Fuerza",
+    icon:"💪",
+    description:"Trabaja fuerza general.",
+    exercises:[
+      ["squat",15],
+      ["pushup",5],
+      ["lunge",10],
+      ["bridge",15]
+    ]
+  },
+
+  cardio:{
+    name:"Cardio",
+    icon:"❤️",
+    description:"Mantén el cuerpo activo.",
+    exercises:[
+      ["jumpingJack",30],
+      ["highKnees",30],
+      ["jump",30]
+    ]
+  },
+
+  hiit:{
+    name:"HIIT",
+    icon:"🔥",
+    description:"Intervalos cortos de actividad.",
+    exercises:[
+      ["burpee",5],
+      ["mountain",20],
+      ["jumpingJack",30],
+      ["squat",15]
+    ]
+  },
+
+  core:{
+    name:"Core",
+    icon:"🎯",
+    description:"Abdomen y zona central.",
+    exercises:[
+      ["abs",15],
+      ["plank",1],
+      ["bridge",15]
+    ]
+  },
+
+  intermedio:{
+    name:"Intermedio",
+    icon:"⚡",
+    description:"Un poco más de desafío.",
+    exercises:[
+      ["squat",20],
+      ["pushup",8],
+      ["lunge",15],
+      ["jump",30]
+    ]
+  },
+
+  avanzado:{
+    name:"Avanzado",
+    icon:"🏆",
+    description:"Rutina exigente.",
+    exercises:[
+      ["burpee",10],
+      ["pushup",12],
+      ["squat",25],
+      ["mountain",30]
+    ]
+  },
+
+  movilidad:{
+    name:"Movilidad",
+    icon:"🧘",
+    description:"Movimiento y movilidad.",
+    exercises:[
+      ["bridge",10],
+      ["calf",15],
+      ["lunge",10]
+    ]
+  }
+
+};
+
+const GAMES = {
+
+  squatChallenge:{
+    name:"Squat Challenge",
+    icon:"🦵",
+    goal:20,
+    seconds:60,
+    reward:30,
+    exercise:"squat"
+  },
+
+  jumpChallenge:{
+    name:"Jump Challenge",
+    icon:"⬆️",
+    goal:30,
+    seconds:60,
+    reward:35,
+    exercise:"jump"
+  },
+
+  plankChallenge:{
+    name:"Plank Challenge",
+    icon:"🧘",
+    goal:60,
+    seconds:60,
+    reward:50,
+    exercise:"plank"
+  },
+
+  balanceChallenge:{
+    name:"Balance Challenge",
+    icon:"⚖️",
+    goal:30,
+    seconds:45,
+    reward:40,
+    exercise:"balance"
+  }
+
+};
+
+const REWARDS = [
+  ["🍰","Postre",250],
+  ["🍓","Snack especial",150],
+  ["😴","Día de descanso",400],
+  ["🧘","Rutina ligera",100],
+  ["🏃","Elegir rutina del día",100],
+  ["💪","Saltarse un ejercicio",150],
+  ["🔥","Protección de racha",300],
+  ["🏆","Doble XP siguiente rutina",250],
+  ["🪙","Bonus coins siguiente rutina",300],
+  ["🎯","Desbloquear ejercicio",350],
+  ["🎮","Desbloquear minijuego",300]
+];
+
+/* =========================================================
+   ESTADO
+========================================================= */
+
+const DEFAULT_STATE = {
+  coins:0,
+  xp:0,
+  level:1,
+  streak:0,
+
+  exercisesCompleted:0,
+  repetitions:0,
+  activeMinutes:0,
+  personalRecord:0,
+
+  todayXP:0,
+  todayCoins:0,
+
+  lastWorkoutDate:null,
+
+  caloriesBurnedTotal:0,
+
+  profile:{
+    name:"",
+    age:"",
+    height:"",
+    weight:""
+  },
+
+  foodHistory:[],
+  absences:[],
+  completedRewards:[],
+
+  activityLog:[]
+};
+
+let state = loadState();
+
+function loadState(){
+
+  try{
+
+    const saved = localStorage.getItem("sportcoins_state");
+
+    if(!saved){
+      return structuredClone(DEFAULT_STATE);
+    }
+
+    const parsed = JSON.parse(saved);
+
+    return {
+      ...structuredClone(DEFAULT_STATE),
+      ...parsed,
+      profile:{
+        ...DEFAULT_STATE.profile,
+        ...(parsed.profile || {})
+      },
+      foodHistory:parsed.foodHistory || [],
+      absences:parsed.absences || [],
+      completedRewards:parsed.completedRewards || [],
+      activityLog:parsed.activityLog || []
+    };
+
+  }catch(e){
+
+    console.error(e);
+    return structuredClone(DEFAULT_STATE);
+
+  }
+
+}
+
+function saveState(){
+  localStorage.setItem(
+    "sportcoins_state",
+    JSON.stringify(state)
+  );
+}
+
+/* =========================================================
+   UTILIDADES
+========================================================= */
+
+function todayKey(){
+
+  const d = new Date();
+
+  return [
+    d.getFullYear(),
+    String(d.getMonth()+1).padStart(2,"0"),
+    String(d.getDate()).padStart(2,"0")
+  ].join("-");
+
+}
+
+function monthKey(date){
+
+  const d = new Date(date);
+
+  return [
+    d.getFullYear(),
+    String(d.getMonth()+1).padStart(2,"0")
+  ].join("-");
+
+}
+
+function formatMonth(key){
+
+  const [y,m] = key.split("-");
+
+  return new Date(
+    Number(y),
+    Number(m)-1,
+    1
+  ).toLocaleDateString("es-MX",{
+    month:"long",
+    year:"numeric"
+  });
+
+}
+
+function toast(message){
+
+  const el = document.getElementById("toast");
+
+  el.textContent = message;
+
+  el.classList.add("show");
+
+  clearTimeout(window.toastTimer);
+
+  window.toastTimer = setTimeout(()=>{
+    el.classList.remove("show");
+  },2600);
+
+}
+
+function xpForNextLevel(){
+
+  return state.level * 100;
+
+}
+
+function updateLevel(){
+
+  let changed = false;
+
+  while(
+    state.level < LEVELS.length &&
+    state.xp >= state.level * 100
+  ){
+
+    state.xp -= state.level * 100;
+    state.level++;
+    changed = true;
+
+  }
+
+  if(changed){
+    toast("🎉 ¡Subiste a nivel " + state.level + "!");
+  }
+
+}
+
+function levelName(){
+
+  return LEVELS[Math.min(state.level-1,LEVELS.length-1)];
+
+}
+
+function caloriesEstimate(exerciseId,reps,minutes){
+
+  const ex = EXERCISES[exerciseId];
+
+  if(!ex) return 0;
+
+  const weight = Number(state.profile.weight);
+
+  if(!weight || weight <= 0){
+    return 0;
+  }
+
+  let mins = Number(minutes) || 0;
+
+  if(!mins && reps && ex.secPerRep){
+    mins = reps * ex.secPerRep / 60;
+  }
+
+  if(!mins) return 0;
+
+  const calories =
+    ex.met *
+    3.5 *
+    weight /
+    200 *
+    mins;
+
+  return Math.max(0,calories);
+
+}
+
+/* =========================================================
+   REGISTRO DE ACTIVIDAD
+========================================================= */
+
+function registerActivity({
+  exercise,
+  reps=0,
+  minutes=0
+}){
+
+  const ex = EXERCISES[exercise];
+
+  if(!ex) return;
+
+  const coins =
+    ex.unit === "min"
+      ? Math.round(minutes * ex.coins)
+      : reps * ex.coins;
+
+  const xp =
+    ex.unit === "min"
+      ? Math.round(minutes * ex.xp)
+      : reps * ex.xp;
+
+  const calories =
+    caloriesEstimate(exercise,reps,minutes);
+
+  state.coins += coins;
+  state.xp += xp;
+
+  state.todayCoins += coins;
+  state.todayXP += xp;
+
+  state.exercisesCompleted++;
+
+  state.repetitions += reps;
+  state.activeMinutes += minutes;
+
+  state.caloriesBurnedTotal += calories;
+
+  state.personalRecord =
+    Math.max(
+      state.personalRecord,
+      reps
+    );
+
+  state.activityLog.push({
+    date:todayKey(),
+    exercise,
+    reps,
+    minutes,
+    calories,
+    coins,
+    xp
+  });
+
+  updateStreak();
+
+  updateLevel();
+
+  saveState();
+  renderAll();
+
+  toast(
+    `+${coins} 🪙  +${xp} XP` +
+    (calories ? `  🔥 ${calories.toFixed(1)} kcal` : "")
+  );
+
+}
+
+/* =========================================================
+   RACHA
+========================================================= */
+
+function updateStreak(){
+
+  const today = todayKey();
+
+  if(state.lastWorkoutDate === today){
+    return;
+  }
+
+  if(!state.lastWorkoutDate){
+
+    state.streak = 1;
+
+  }else{
+
+    const previous = new Date(
+      state.lastWorkoutDate + "T00:00:00"
+    );
+
+    const current = new Date(
+      today + "T00:00:00"
+    );
+
+    const diff =
+      Math.round(
+        (current-previous)/86400000
+      );
+
+    if(diff === 1){
+      state.streak++;
+    }else if(diff > 1){
+      state.streak = 1;
+    }
+
+  }
+
+  state.lastWorkoutDate = today;
+
+}
+
+/* =========================================================
+   NAVEGACIÓN
+========================================================= */
+
+const pageTitles = {
+  home:"Inicio",
+  camera:"Cámara",
+  routines:"Rutinas",
+  exercises:"Ejercicios",
+  games:"Minijuegos",
+  rewards:"Recompensas",
+  stats:"Estadísticas",
+  food:"Diario de comida",
+  absence:"Ausencias",
+  profile:"Perfil"
+};
+
+function goPage(page){
+
+  document.querySelectorAll(".page")
+    .forEach(p=>p.classList.remove("active"));
+
+  const target =
+    document.getElementById("page-"+page);
+
+  if(target){
+    target.classList.add("active");
+  }
+
+  document.querySelectorAll(".nav-btn")
+    .forEach(btn=>{
+      btn.classList.toggle(
+        "active",
+        btn.dataset.page === page
+      );
+    });
+
+  document.getElementById("topTitle").textContent =
+    pageTitles[page] || "SportCoins";
+
+  closeSidebar();
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+
+}
+
+document.querySelectorAll(".nav-btn")
+.forEach(btn=>{
+
+  btn.addEventListener("click",()=>{
+    goPage(btn.dataset.page);
+  });
+
+});
+
+/* =========================================================
+   SIDEBAR CORREGIDA
+========================================================= */
+
+const sidebar =
+  document.getElementById("sidebar");
+
+const overlay =
+  document.getElementById("overlay");
+
+const menuBtn =
+  document.getElementById("menuBtn");
+
+function openSidebar(){
+
+  sidebar.classList.add("open");
+  overlay.classList.add("show");
+
+}
+
+function closeSidebar(){
+
+  sidebar.classList.remove("open");
+  overlay.classList.remove("show");
+
+}
+
+menuBtn.addEventListener(
+  "click",
+  ()=>{
+    sidebar.classList.contains("open")
+      ? closeSidebar()
+      : openSidebar();
+  }
+);
+
+overlay.addEventListener(
+  "click",
+  closeSidebar
+);
+
+document.addEventListener(
+  "keydown",
+  e=>{
+    if(e.key === "Escape"){
+      closeSidebar();
+    }
+  }
+);
+
+/* =========================================================
+   HOME
+========================================================= */
+
+function renderHome(){
+
+  document.getElementById("homeCoins").textContent =
+    Math.floor(state.coins);
+
+  document.getElementById("homeXP").textContent =
+    Math.floor(state.xp);
+
+  document.getElementById("homeStreak").textContent =
+    state.streak;
+
+  document.getElementById("homeCalories").textContent =
+    state.caloriesBurnedTotal.toFixed(0);
+
+  document.getElementById("topCoins").textContent =
+    Math.floor(state.coins);
+
+  document.getElementById("levelName").textContent =
+    levelName();
+
+  document.getElementById("levelBadge").textContent =
+    "NIVEL " + state.level;
+
+  const next = xpForNextLevel();
+
+  const percentage =
+    Math.min(
+      100,
+      state.xp / next * 100
+    );
+
+  document.getElementById("xpProgress").style.width =
+    percentage + "%";
+
+  document.getElementById("xpCurrent").textContent =
+    state.xp + " XP";
+
+  document.getElementById("xpNext").textContent =
+    next + " XP";
+
+  document.getElementById("todayGoal").textContent =
+    `${state.todayXP} / 50 XP`;
+
+  document.getElementById("todayProgress").style.width =
+    Math.min(
+      100,
+      state.todayXP / 50 * 100
+    ) + "%";
+
+}
+
+/* =========================================================
+   RUTINAS
+========================================================= */
+
+function renderRoutines(){
+
+  const container =
+    document.getElementById("routineGrid");
+
+  container.innerHTML = "";
+
+  Object.entries(ROUTINES)
+  .forEach(([id,routine])=>{
+
+    const card =
+      document.createElement("div");
+
+    card.className = "card routine";
+
+    const list =
+      routine.exercises
+      .map(([exercise,amount])=>{
+        const ex = EXERCISES[exercise];
+
+        return `${ex.icon} ${ex.name} × ${amount}${ex.unit==="min"?" min":""}`;
+      })
+      .join("<br>");
+
+    card.innerHTML = `
+      <div class="routine-icon">${routine.icon}</div>
+      <h3>${routine.name}</h3>
+      <p>${routine.description}</p>
+
+      <div style="
+        font-size:10px;
+        color:#aeb5d1;
+        line-height:1.6;
+        margin-bottom:10px;
+      ">
+        ${list}
+      </div>
+
+      <button class="btn primary small">
+        ▶ Empezar
+      </button>
+    `;
+
+    card.querySelector("button")
+      .addEventListener("click",()=>{
+        startRoutine(id);
+      });
+
+    container.appendChild(card);
+
+  });
+
+}
+
+function startRoutine(id){
+
+  const routine = ROUTINES[id];
+
+  let html = `
+    <p style="color:var(--muted);font-size:11px">
+      Completa los ejercicios de la rutina.
+      Las repeticiones registradas aquí son manuales.
+      Para detección automática usa la cámara.
+    </p>
+  `;
+
+  routine.exercises.forEach(
+    ([exercise,amount])=>{
+
+      const ex = EXERCISES[exercise];
+
+      html += `
+        <div class="absence"
+          style="
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:8px;
+          "
+        >
+          <div>
+            <b>${ex.icon} ${ex.name}</b>
+            <div style="
+              color:var(--muted);
+              font-size:10px;
+            ">
+              Objetivo: ${amount}${ex.unit==="min"?" min":" reps"}
+            </div>
+          </div>
+
+          <button
+            class="btn green small"
+            onclick="completeRoutineExercise('${exercise}',${amount})"
+          >
+            +${amount}
+          </button>
+        </div>
+      `;
+
+    }
+  );
+
+  openModal(
+    routine.name,
+    html
+  );
+
+}
+
+window.completeRoutineExercise =
+function(exercise,amount){
+
+  registerActivity({
+    exercise,
+    reps:EXERCISES[exercise].unit==="rep"
+      ? amount
+      : 0,
+    minutes:EXERCISES[exercise].unit==="min"
+      ? amount
+      : 0
+  });
+
+};
+
+/* =========================================================
+   EJERCICIOS
+========================================================= */
+
+function renderExercises(){
+
+  const container =
+    document.getElementById("exerciseGrid");
+
+  container.innerHTML = "";
+
+  Object.entries(EXERCISES)
+  .forEach(([id,ex])=>{
+
+    const card =
+      document.createElement("div");
+
+    card.className =
+      "card exercise-card";
+
+    card.innerHTML = `
+      <div style="font-size:23px">${ex.icon}</div>
+      <h3 style="margin-top:7px">${ex.name}</h3>
+      <p>
+        +${ex.coins} 🪙 /
+        +${ex.xp} XP
+        ${ex.unit==="min" ? " por min" : " por rep"}
+      </p>
+
+      ${
+        ["squat","abs","pushup"].includes(id)
+        ? `<button class="btn primary small camera-exercise">
+             📷 Cámara
+           </button>`
+        : `<button class="btn small manual-exercise">
+             +1
+           </button>`
+      }
+    `;
+
+    const button =
+      card.querySelector("button");
+
+    button.addEventListener(
+      "click",
+      ()=>{
+        if(
+          ["squat","abs","pushup"]
+          .includes(id)
+        ){
+
+          selectCameraExercise(id);
+          goPage("camera");
+
+        }else{
+
+          registerActivity({
+            exercise:id,
+            reps:ex.unit==="rep" ? 1 : 0,
+            minutes:ex.unit==="min" ? 1 : 0
+          });
+
+        }
+      }
+    );
+
+    container.appendChild(card);
+
+  });
+
+}
+
+/* =========================================================
+   MINIJUEGOS
+========================================================= */
+
+function renderGames(){
+
+  const container =
+    document.getElementById("gameGrid");
+
+  container.innerHTML = "";
+
+  Object.entries(GAMES)
+  .forEach(([id,game])=>{
+
+    const card =
+      document.createElement("div");
+
+    card.className =
+      "card game-card";
+
+    card.innerHTML = `
+      <div class="emoji">${game.icon}</div>
+      <h3 style="margin-top:8px">${game.name}</h3>
+
+      <p style="
+        color:var(--muted);
+        font-size:11px;
+        line-height:1.4;
+      ">
+        Objetivo: ${game.goal}
+        ${game.exercise==="plank"?"segundos":"reps"}<br>
+        Tiempo: ${game.seconds}s
+      </p>
+
+      <div style="
+        color:#ffd166;
+        font-size:11px;
+        margin-bottom:9px;
+      ">
+        🪙 Premio: ${game.reward}
+      </div>
+
+      <button class="btn primary small">
+        ▶ Jugar
+      </button>
+    `;
+
+    card.querySelector("button")
+      .addEventListener(
+        "click",
+        ()=>{
+          startGame(id);
+        }
+      );
+
+    container.appendChild(card);
+
+  });
+
+}
+
+function startGame(id){
+
+  const game = GAMES[id];
+
+  if(game.exercise === "balance"){
+
+    openModal(
+      game.name,
+      `
+      <div class="card" style="background:#0c1020">
+        <div style="font-size:35px">⚖️</div>
+        <h2 style="margin-top:8px">
+          Balance Challenge
+        </h2>
+
+        <p style="
+          color:var(--muted);
+          font-size:11px;
+          line-height:1.5;
+        ">
+          Mantén una posición estable durante
+          ${game.goal} segundos.
+        </p>
+
+        <button
+          class="btn primary"
+          onclick="finishGame('${id}')"
+        >
+          ▶ Empezar
+        </button>
+      </div>
+      `
+    );
+
+    return;
+  }
+
+  selectCameraExercise(game.exercise);
+
+  goPage("camera");
+
+  toast(
+    `🎮 ${game.name}: objetivo ${game.goal}`
+  );
+
+}
+
+window.finishGame =
+function(id){
+
+  const game = GAMES[id];
+
+  state.coins += game.reward;
+  state.xp += 20;
+
+  updateLevel();
+  saveState();
+  renderAll();
+
+  closeModal();
+
+  toast(
+    `🏆 ¡Desafío completado! +${game.reward} 🪙`
+  );
+
+};
+
+/* =========================================================
+   RECOMPENSAS
+========================================================= */
+
+function renderRewards(){
+
+  const container =
+    document.getElementById("rewardGrid");
+
+  container.innerHTML = "";
+
+  REWARDS.forEach(
+    ([icon,name,price],index)=>{
+
+      const card =
+        document.createElement("div");
+
+      card.className =
+        "card reward-card";
+
+      const used =
+        state.completedRewards.includes(index);
+
+      card.innerHTML = `
+        <div style="font-size:25px">${icon}</div>
+        <h3 style="margin-top:8px">${name}</h3>
+
+        <div class="reward-price">
+          🪙 ${price}
+        </div>
+
+        <button
+          class="btn ${used?"":"primary"} small"
+          ${used?"disabled":""}
+        >
+          ${used?"Usada":"Canjear"}
+        </button>
+      `;
+
+      card.querySelector("button")
+      .addEventListener(
+        "click",
+        ()=>{
+          redeemReward(index);
+        }
+      );
+
+      container.appendChild(card);
+
+    }
+  );
+
+}
+
+function redeemReward(index){
+
+  const reward = REWARDS[index];
+
+  if(state.coins < reward[2]){
+
+    toast("🪙 No tienes suficientes SportCoins.");
+
+    return;
+  }
+
+  state.coins -= reward[2];
+
+  state.completedRewards.push(index);
+
+  saveState();
+  renderAll();
+
+  toast(
+    `🎁 Canjeaste ${reward[1]}`
+  );
+
+}
+
+/* =========================================================
+   ESTADÍSTICAS MENSUALES
+========================================================= */
+
+function availableMonths(){
+
+  const months =
+    new Set();
+
+  months.add(monthKey(new Date()));
+
+  state.activityLog.forEach(
+    item=>{
+      months.add(monthKey(item.date));
+    }
+  );
+
+  return [...months].sort().reverse();
+
+}
+
+function renderMonthSelect(){
+
+  const select =
+    document.getElementById("monthSelect");
+
+  const current =
+    select.value || monthKey(new Date());
+
+  select.innerHTML = "";
+
+  availableMonths()
+    .forEach(month=>{
+
+      const option =
+        document.createElement("option");
+
+      option.value = month;
+      option.textContent =
+        formatMonth(month);
+
+      if(month === current){
+        option.selected = true;
+      }
+
+      select.appendChild(option);
+
+    });
+
+}
+
+function renderMonthlyStats(){
+
+  renderMonthSelect();
+
+  const month =
+    document.getElementById("monthSelect").value ||
+    monthKey(new Date());
+
+  const data =
+    state.activityLog.filter(
+      item=>monthKey(item.date)===month
+    );
+
+  const workouts =
+    new Set(data.map(x=>x.date)).size;
+
+  const reps =
+    data.reduce(
+      (sum,x)=>sum + Number(x.reps||0),
+      0
+    );
+
+  const minutes =
+    data.reduce(
+      (sum,x)=>sum + Number(x.minutes||0),
+      0
+    );
+
+  const calories =
+    data.reduce(
+      (sum,x)=>sum + Number(x.calories||0),
+      0
+    );
+
+  const coins =
+    data.reduce(
+      (sum,x)=>sum + Number(x.coins||0),
+      0
+    );
+
+  const xp =
+    data.reduce(
+      (sum,x)=>sum + Number(x.xp||0),
+      0
+    );
+
+  document.getElementById("monthGrid").innerHTML = `
+
+    <div class="card month-stat">
+      <div class="stat-label">🏋️ Entrenamientos</div>
+      <div class="big">${workouts}</div>
+      <small>días con actividad</small>
+    </div>
+
+    <div class="card month-stat">
+      <div class="stat-label">🔁 Repeticiones</div>
+      <div class="big">${reps}</div>
+      <small>reps registradas</small>
+    </div>
+
+    <div class="card month-stat">
+      <div class="stat-label">⏱️ Tiempo activo</div>
+      <div class="big">${minutes.toFixed(1)}</div>
+      <small>minutos</small>
+    </div>
+
+    <div class="card month-stat">
+      <div class="stat-label">🔥 Calorías estimadas</div>
+      <div class="big">${calories.toFixed(0)}</div>
+      <small>kcal de actividad</small>
+    </div>
+
+    <div class="card month-stat">
+      <div class="stat-label">🪙 SportCoins</div>
+      <div class="big">${coins}</div>
+      <small>ganadas ese mes</small>
+    </div>
+
+    <div class="card month-stat">
+      <div class="stat-label">⚡ XP</div>
+      <div class="big">${xp}</div>
+      <small>obtenida ese mes</small>
+    </div>
+
+  `;
+
+}
+
+document.getElementById("monthSelect")
+.addEventListener(
+  "change",
+  renderMonthlyStats
+);
+
+/* =========================================================
+   PERFIL
+========================================================= */
+
+function renderProfile(){
+
+  document.getElementById("profileName").value =
+    state.profile.name || "";
+
+  document.getElementById("profileAge").value =
+    state.profile.age || "";
+
+  document.getElementById("profileHeight").value =
+    state.profile.height || "";
+
+  document.getElementById("profileWeight").value =
+    state.profile.weight || "";
+
+}
+
+document.getElementById("saveProfile")
+.addEventListener(
+  "click",
+  ()=>{
+
+    state.profile.name =
+      document.getElementById("profileName").value.trim();
+
+    state.profile.age =
+      document.getElementById("profileAge").value;
+
+    state.profile.height =
+      document.getElementById("profileHeight").value;
+
+    state.profile.weight =
+      document.getElementById("profileWeight").value;
+
+    saveState();
+
+    toast("💾 Perfil guardado.");
+
+    renderAll();
+
+  }
+);
+
+/* =========================================================
+   AUSENCIAS
+========================================================= */
+
+document.getElementById("absenceBtn")
+.addEventListener(
+  "click",
+  ()=>{
+
+    const date =
+      document.getElementById("absenceDate").value;
+
+    const reason =
+      document.getElementById("absenceReason").value;
+
+    const details =
+      document.getElementById("absenceDetails").value;
+
+    if(!date){
+
+      toast("Selecciona una fecha.");
+
+      return;
+    }
+
+    state.absences.push({
+      id:Date.now(),
+      date,
+      reason,
+      details,
+      status:"Pendiente"
+    });
+
+    saveState();
+
+    document.getElementById("absenceDetails").value="";
+
+    renderAbsences();
+
+    toast("📩 Ausencia registrada.");
+
+  }
+);
+
+function renderAbsences(){
+
+  const container =
+    document.getElementById("absenceList");
+
+  if(!state.absences.length){
+
+    container.innerHTML = `
+      <div class="card" style="margin-top:10px">
+        <span style="color:var(--muted);font-size:11px">
+          No tienes ausencias registradas.
+        </span>
+      </div>
+    `;
+
+    return;
+  }
+
+  container.innerHTML = "";
+
+  [...state.absences]
+  .reverse()
+  .forEach(item=>{
+
+    const div =
+      document.createElement("div");
+
+    div.className = "absence";
+
+    div.innerHTML = `
+      <b>${item.date}</b>
+
+      <span class="status">
+        ${item.status}
+      </span>
+
+      <div style="
+        color:#aeb5d1;
+        font-size:10px;
+        margin-top:5px;
+      ">
+        ${item.reason}
+      </div>
+
+      ${
+        item.details
+        ? `<div style="
+             color:#8189a8;
+             font-size:10px;
+             margin-top:3px;
+           ">
+             ${item.details}
+           </div>`
+        : ""
+      }
+    `;
+
+    container.appendChild(div);
+
+  });
+
+}
+
+/* =========================================================
+   FOOD
+========================================================= */
+
+let foodImageBase64 = null;
+
+document.getElementById("foodImage")
+.addEventListener(
+  "change",
+  async e=>{
+
+    const file =
+      e.target.files[0];
+
+    if(!file) return;
+
+    const preview =
+      document.getElementById("foodPreview");
+
+    preview.src =
+      URL.createObjectURL(file);
+
+    preview.style.display =
+      "block";
+
+    foodImageBase64 =
+      await fileToBase64(file);
+
+  }
+);
+
+function fileToBase64(file){
+
+  return new Promise(
+    (resolve,reject)=>{
+
+      const reader =
+        new FileReader();
+
+      reader.onload =
+        ()=>resolve(reader.result);
+
+      reader.onerror =
+        reject;
+
+      reader.readAsDataURL(file);
+
+    }
+  );
+
+}
+
+document.getElementById("analyzeFoodBtn")
+.addEventListener(
+  "click",
+  analyzeFood
+);
+
+async function analyzeFood(){
+
+  const text =
+    document.getElementById("foodText").value.trim();
+
+  if(!text && !foodImageBase64){
+
+    toast("Escribe o sube algo primero.");
+
+    return;
+  }
+
+  const result =
+    document.getElementById("foodResult");
+
+  result.textContent =
+    "🔎 Analizando...";
+
+  try{
+
+    const response =
+      await fetch(
+        `${SPORTCOINS_CONFIG.supabase.url}/functions/v1/${SPORTCOINS_CONFIG.edgeFunctions.gemini}`,
+        {
+          method:"POST",
+
+          headers:{
+            "Content-Type":"application/json",
+            "apikey":
+              SPORTCOINS_CONFIG.supabase.publishableKey
+          },
+
+          body:JSON.stringify({
+            text,
+            image:foodImageBase64
+          })
+        }
+      );
+
+    if(!response.ok){
+
+      throw new Error(
+        "La función de Supabase respondió con error."
+      );
+
+    }
+
+    const data =
+      await response.json();
+
+    const output =
+      data.text ||
+      data.result ||
+      JSON.stringify(data,null,2);
+
+    result.textContent =
+      output;
+
+    state.foodHistory.push({
+      date:new Date().toISOString(),
+      text,
+      result:output
+    });
+
+    saveState();
+
+    renderFoodHistory();
+
+  }catch(error){
+
+    console.error(error);
+
+    result.textContent =
+      "No se pudo analizar todavía. Revisa que la Edge Function 'analyze-food' esté desplegada.";
+
+  }
+
+}
+
+function renderFoodHistory(){
+
+  const container =
+    document.getElementById("foodHistory");
+
+  if(!state.foodHistory.length){
+
+    container.innerHTML = `
+      <div class="card">
+        <span style="font-size:11px;color:var(--muted)">
+          Todavía no hay registros.
+        </span>
+      </div>
+    `;
+
+    return;
+  }
+
+  container.innerHTML = "";
+
+  [...state.foodHistory]
+  .reverse()
+  .slice(0,20)
+  .forEach(item=>{
+
+    const card =
+      document.createElement("div");
+
+    card.className =
+      "card";
+
+    card.style.marginBottom="7px";
+
+    card.innerHTML = `
+      <div style="font-size:10px;color:var(--muted)">
+        ${new Date(item.date).toLocaleString("es-MX")}
+      </div>
+
+      <b style="font-size:12px">
+        ${escapeHTML(item.text || "Foto")}
+      </b>
+
+      <div style="
+        margin-top:6px;
+        color:#aeb5d1;
+        font-size:10px;
+        line-height:1.5;
+      ">
+        ${escapeHTML(item.result)}
+      </div>
+    `;
+
+    container.appendChild(card);
+
+  });
+
+}
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+const modal =
+  document.getElementById("modal");
+
+function openModal(title,content){
+
+  document.getElementById("modalTitle")
+    .textContent = title;
+
+  document.getElementById("modalContent")
+    .innerHTML = content;
+
+  modal.classList.add("show");
+
+}
+
+function closeModal(){
+
+  modal.classList.remove("show");
+
+}
+
+document.getElementById("modalClose")
+.addEventListener(
+  "click",
+  closeModal
+);
+
+modal.addEventListener(
+  "click",
+  e=>{
+    if(e.target === modal){
+      closeModal();
+    }
+  }
+);
+
+/* =========================================================
+   MEDIA PIPE POSE
+========================================================= */
+
+let poseLandmarker = null;
+let cameraStream = null;
+let cameraRunning = false;
+let animationFrame = null;
+
+let cameraExercise = "squat";
+
+let poseState = {
+  squat:"up",
+  abs:"down",
+  pushup:"up"
+};
+
+let cameraSession = {
+  reps:0,
+  coins:0,
+  xp:0,
+  calories:0
+};
+
+async function initPoseLandmarker(){
+
+  if(poseLandmarker){
+    return true;
+  }
+
+  if(!window.MediaPipeVision){
+
+    toast(
+      "MediaPipe todavía está cargando..."
+    );
+
+    return false;
+  }
+
+  try{
+
+    const {
+      FilesetResolver,
+      PoseLandmarker
+    } = window.MediaPipeVision;
+
+    const vision =
+      await FilesetResolver.forVisionTasks(
+        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/wasm"
+      );
+
+    poseLandmarker =
+      await PoseLandmarker.createFromOptions(
+        vision,
+        {
+          baseOptions:{
+            modelAssetPath:
+              "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task",
+
+            delegate:"GPU"
+          },
+
+          runningMode:"VIDEO",
+
+          numPoses:1,
+
+          minPoseDetectionConfidence:.5,
+          minPosePresenceConfidence:.5,
+          minTrackingConfidence:.5
+        }
+      );
+
+    return true;
+
+  }catch(error){
+
+    console.error(error);
+
+    toast(
+      "No se pudo cargar el modelo de cámara."
+    );
+
+    return false;
+
+  }
+
+}
+
+async function startCamera(){
+
+  const video =
+    document.getElementById("cameraVideo");
+
+  if(cameraRunning){
+    return;
+  }
+
+  const ready =
+    await initPoseLandmarker();
+
+  if(!ready){
+    return;
+  }
+
+  try{
+
+    cameraStream =
+      await navigator.mediaDevices.getUserMedia({
+        video:{
+          facingMode:"user",
+          width:{ideal:1280},
+          height:{ideal:720}
+        },
+        audio:false
+      });
+
+    video.srcObject =
+      cameraStream;
+
+    await video.play();
+
+    cameraRunning = true;
+
+    document.getElementById("cameraStatus")
+      .textContent =
+      "🟢 Cámara activa";
+
+    resetCameraSession();
+
+    detectPose();
+
+    toast(
+      "📷 Cámara activa. Ponte frente a ella."
+    );
+
+  }catch(error){
+
+    console.error(error);
+
+    toast(
+      "No se pudo acceder a la cámara. Revisa los permisos del navegador."
+    );
+
+  }
+
+}
+
+function stopCamera(){
+
+  cameraRunning = false;
+
+  if(animationFrame){
+    cancelAnimationFrame(animationFrame);
+    animationFrame = null;
+  }
+
+  if(cameraStream){
+
+    cameraStream
+      .getTracks()
+      .forEach(track=>track.stop());
+
+    cameraStream = null;
+
+  }
+
+  const video =
+    document.getElementById("cameraVideo");
+
+  video.srcObject = null;
+
+  document.getElementById("cameraStatus")
+    .textContent =
+    "Cámara apagada";
+
+}
+
+document.getElementById("startCamera")
+.addEventListener(
+  "click",
+  startCamera
+);
+
+document.getElementById("stopCamera")
+.addEventListener(
+  "click",
+  stopCamera
+);
+
+document.getElementById("finishSession")
+.addEventListener(
+  "click",
+  finishCameraSession
+);
+
+function resetCameraSession(){
+
+  cameraSession = {
+    reps:0,
+    coins:0,
+    xp:0,
+    calories:0
+  };
+
+  poseState = {
+    squat:"up",
+    abs:"down",
+    pushup:"up"
+  };
+
+  updateCameraUI();
+
+}
+
+function selectCameraExercise(id){
+
+  if(
+    !["squat","abs","pushup"]
+    .includes(id)
+  ){
+    return;
+  }
+
+  cameraExercise = id;
+
+  document.querySelectorAll(".detect-option")
+  .forEach(btn=>{
+    btn.classList.toggle(
+      "active",
+      btn.dataset.exercise === id
+    );
+  });
+
+  document.getElementById(
+    "cameraExerciseName"
+  ).textContent =
+    EXERCISES[id].name;
+
+  resetCameraSession();
+
+}
+
+function selectCameraExerciseAndOpen(id){
+
+  selectCameraExercise(id);
+  goPage("camera");
+
+}
+
+window.selectCameraExercise =
+  selectCameraExerciseAndOpen;
+
+document.querySelectorAll(".detect-option")
+.forEach(btn=>{
+
+  btn.addEventListener(
+    "click",
+    ()=>{
+      selectCameraExercise(
+        btn.dataset.exercise
+      );
+    }
+  );
+
+});
+
+/* =========================================================
+   DETECCIÓN DE POSE
+========================================================= */
+
+function angle(a,b,c){
+
+  const radians =
+    Math.atan2(
+      c.y-b.y,
+      c.x-b.x
+    ) -
+    Math.atan2(
+      a.y-b.y,
+      a.x-b.x
+    );
+
+  let degrees =
+    Math.abs(
+      radians * 180 / Math.PI
+    );
+
+  if(degrees > 180){
+    degrees = 360-degrees;
+  }
+
+  return degrees;
+
+}
+
+function visible(lm){
+
+  return lm &&
+    typeof lm.x === "number" &&
+    typeof lm.y === "number" &&
+    (lm.visibility ?? 1) > .45;
+
+}
+
+function detectSquat(lm){
+
+  const leftHip = lm[23];
+  const leftKnee = lm[25];
+  const leftAnkle = lm[27];
+
+  const rightHip = lm[24];
+  const rightKnee = lm[26];
+  const rightAnkle = lm[28];
+
+  if(
+    !visible(leftHip) ||
+    !visible(leftKnee) ||
+    !visible(leftAnkle)
+  ){
+    return;
+  }
+
+  const leftAngle =
+    angle(
+      leftHip,
+      leftKnee,
+      leftAnkle
+    );
+
+  const rightAngle =
+    angle(
+      rightHip,
+      rightKnee,
+      rightAnkle
+    );
+
+  const kneeAngle =
+    (leftAngle+rightAngle)/2;
+
+  if(
+    kneeAngle > 160
+  ){
+    poseState.squat = "up";
+  }
+
+  if(
+    kneeAngle < 105 &&
+    poseState.squat === "up"
+  ){
+
+    poseState.squat = "down";
+
+    countCameraRep();
+
+  }
+
+}
+
+function detectAbs(lm){
+
+  const leftShoulder = lm[11];
+  const leftHip = lm[23];
+  const leftKnee = lm[25];
+
+  if(
+    !visible(leftShoulder) ||
+    !visible(leftHip) ||
+    !visible(leftKnee)
+  ){
+    return;
+  }
+
+  const torsoAngle =
+    angle(
+      leftShoulder,
+      leftHip,
+      leftKnee
+    );
+
+  /*
+    En abdominal:
+    posición recostada ≈ ángulo grande
+    posición elevada ≈ ángulo pequeño
+  */
+
+  if(
+    torsoAngle > 125
+  ){
+    poseState.abs = "down";
+  }
+
+  if(
+    torsoAngle < 70 &&
+    poseState.abs === "down"
+  ){
+
+    poseState.abs = "up";
+
+    countCameraRep();
+
+  }
+
+}
+
+function detectPushup(lm){
+
+  const shoulder = lm[11];
+  const elbow = lm[13];
+  const wrist = lm[15];
+
+  if(
+    !visible(shoulder) ||
+    !visible(elbow) ||
+    !visible(wrist)
+  ){
+    return;
+  }
+
+  const elbowAngle =
+    angle(
+      shoulder,
+      elbow,
+      wrist
+    );
+
+  if(
+    elbowAngle > 155
+  ){
+    poseState.pushup = "up";
+  }
+
+  if(
+    elbowAngle < 90 &&
+    poseState.pushup === "up"
+  ){
+
+    poseState.pushup = "down";
+
+    countCameraRep();
+
+  }
+
+}
+
+function countCameraRep(){
+
+  cameraSession.reps++;
+
+  const ex =
+    EXERCISES[cameraExercise];
+
+  cameraSession.coins +=
+    ex.coins;
+
+  cameraSession.xp +=
+    ex.xp;
+
+  cameraSession.calories =
+    caloriesEstimate(
+      cameraExercise,
+      cameraSession.reps,
+      0
+    );
+
+  updateCameraUI();
+
+}
+
+function updateCameraUI(){
+
+  document.getElementById("repNumber")
+    .textContent =
+    cameraSession.reps;
+
+  document.getElementById("sessionReps")
+    .textContent =
+    cameraSession.reps;
+
+  document.getElementById("sessionCoins")
+    .textContent =
+    cameraSession.coins;
+
+  document.getElementById("sessionXP")
+    .textContent =
+    cameraSession.xp;
+
+  document.getElementById("sessionCalories")
+    .textContent =
+    cameraSession.calories.toFixed(1);
+
+}
+
+function drawPose(result){
+
+  const canvas =
+    document.getElementById("poseCanvas");
+
+  const video =
+    document.getElementById("cameraVideo");
+
+  const ctx =
+    canvas.getContext("2d");
+
+  canvas.width =
+    video.videoWidth || 640;
+
+  canvas.height =
+    video.videoHeight || 480;
+
+  ctx.clearRect(
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+  if(
+    !result.landmarks ||
+    !result.landmarks.length
+  ){
+    return;
+  }
+
+  const points =
+    result.landmarks[0];
+
+  const connections = [
+    [11,12],
+    [11,13],
+    [13,15],
+    [12,14],
+    [14,16],
+    [11,23],
+    [12,24],
+    [23,24],
+    [23,25],
+    [25,27],
+    [24,26],
+    [26,28]
+  ];
+
+  ctx.lineWidth = 3;
+
+  connections.forEach(
+    ([a,b])=>{
+
+      if(!points[a] || !points[b]){
+        return;
+      }
+
+      ctx.beginPath();
+
+      ctx.moveTo(
+        points[a].x*canvas.width,
+        points[a].y*canvas.height
+      );
+
+      ctx.lineTo(
+        points[b].x*canvas.width,
+        points[b].y*canvas.height
+      );
+
+      ctx.stroke();
+
+    }
+  );
+
+  points.forEach(
+    p=>{
+
+      if((p.visibility ?? 1) < .45){
+        return;
+      }
+
+      ctx.beginPath();
+
+      ctx.arc(
+        p.x*canvas.width,
+        p.y*canvas.height,
+        4,
+        0,
+        Math.PI*2
+      );
+
+      ctx.fill();
+
+    }
+  );
+
+}
+
+function detectPose(){
+
+  if(!cameraRunning){
+    return;
+  }
+
+  const video =
+    document.getElementById("cameraVideo");
+
+  if(
+    video.readyState >= 2 &&
+    poseLandmarker
+  ){
+
+    try{
+
+      const result =
+        poseLandmarker.detectForVideo(
+          video,
+          performance.now()
+        );
+
+      drawPose(result);
+
+      if(
+        result.landmarks &&
+        result.landmarks.length
+      ){
+
+        const lm =
+          result.landmarks[0];
+
+        if(cameraExercise === "squat"){
+          detectSquat(lm);
+        }
+
+        if(cameraExercise === "abs"){
+          detectAbs(lm);
+        }
+
+        if(cameraExercise === "pushup"){
+          detectPushup(lm);
+        }
+
+      }
+
+    }catch(error){
+
+      console.error(error);
+
+    }
+
+  }
+
+  animationFrame =
+    requestAnimationFrame(
+      detectPose
+    );
+
+}
+
+function finishCameraSession(){
+
+  if(cameraSession.reps <= 0){
+
+    toast(
+      "Todavía no hay repeticiones válidas."
+    );
+
+    return;
+
+  }
+
+  const ex =
+    EXERCISES[cameraExercise];
+
+  const reps =
+    cameraSession.reps;
+
+  const minutes =
+    ex.secPerRep
+      ? reps * ex.secPerRep / 60
+      : 0;
+
+  registerActivity({
+    exercise:cameraExercise,
+    reps,
+    minutes
+  });
+
+  resetCameraSession();
+
+}
+
+/* =========================================================
+   RESET
+========================================================= */
+
+document.getElementById("resetBtn")
+.addEventListener(
+  "click",
+  ()=>{
+
+    const ok =
+      confirm(
+        "¿Seguro que quieres borrar todo el progreso local?"
+      );
+
+    if(!ok) return;
+
+    localStorage.removeItem(
+      "sportcoins_state"
+    );
+
+    state =
+      structuredClone(DEFAULT_STATE);
+
+    renderAll();
+
+    closeSidebar();
+
+    toast("♻️ Datos reiniciados.");
+
+  }
+);
+
+/* =========================================================
+   ESCAPE HTML
+========================================================= */
+
+function escapeHTML(text){
+
+  return String(text)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+
+}
+
+/* =========================================================
+   RENDER GENERAL
+========================================================= */
+
+function renderAll(){
+
+  renderHome();
+  renderRoutines();
+  renderExercises();
+  renderGames();
+  renderRewards();
+  renderMonthlyStats();
+  renderFoodHistory();
+  renderAbsences();
+  renderProfile();
+  updateCameraUI();
+
+}
+
+/* =========================================================
+   INICIO
+========================================================= */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  ()=>{
+
+    renderAll();
+
+    const today =
+      new Date()
+      .toISOString()
+      .slice(0,10);
+
+    document.getElementById(
+      "absenceDate"
+    ).value = today;
+
+  }
+);
+
+</script>
+
+</body>
+</html>
